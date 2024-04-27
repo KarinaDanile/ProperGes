@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  backend:
+    build:
+      ./backend/
+    container_name: backend-container
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ./backend:/app/backend
+    networks:
+      - app-network
+  
+  frontend:
+    build: 
+      ./frontend/
+    container_name: frontend-container
+    ports:
+      - "5173:5173"
+    restart: always
+    volumes:
+      - ./frontend:/app/frontend
+  
+networks:
+    app-network:
+    
