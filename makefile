@@ -20,7 +20,7 @@ terminal-back:
 	docker exec -it backend-container /bin/bash
 
 remove:
-	docker compose down --rmi all
+	docker compose down -v --rmi all
 
 removeimages:
 	docker rmi ${APP_NAME}-frontend ${APP_NAME}-backend
