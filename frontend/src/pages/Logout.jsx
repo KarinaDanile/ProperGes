@@ -21,7 +21,7 @@ const Logout = ({setauth}) => {
             console.log(data)
             setauth(false);
             Cookies.remove('access_token');
-            Cookies.remove('refresh_Token');
+            Cookies.remove('refresh_token');
             navigate('/');
         }
         catch (error) {

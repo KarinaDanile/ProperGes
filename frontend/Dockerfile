@@ -1,6 +1,6 @@
 FROM node:20.12.2
 
-WORKDIR /app/fronted
+WORKDIR /app/frontend
 
 COPY package*.json ./
 RUN npm install

@@ -1,14 +1,22 @@
+-include .env
+
 start:
-	docker-compose up -d
+	docker compose up -d
 
 build:
-	docker-compose build
+	docker compose build
 
 stop:
-	docker-compose down -v
+	docker compose down
 
 terminal-front:
-	docker exec -it frontend-container bash
+	docker exec -it frontend-container /bin/bash
 
 terminal-back:
-	docker exec -it backend-container bash
+	docker exec -it backend-container /bin/bash
+
+remove:
+	docker compose down --rmi all
+
+removeimages:
+	docker rmi ${APP_NAME}-frontend ${APP_NAME}-backend
