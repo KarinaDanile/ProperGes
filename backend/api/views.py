@@ -3,26 +3,39 @@ from django.shortcuts import render
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, TokenError
 
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, PropertySerializer
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import CustomUser
+from .models import CustomUser, Property
 
-@permission_classes([AllowAny])
-class RegisterView(APIView):
+#@permission_classes([AllowAny])
+#class RegisterView(APIView):
+#    def post(self, request):
+#        serializer = CustomUserSerializer(data=request.data)
+#        if serializer.is_valid():
+#            serializer.save()
+#            return Response(data=serializer.data)
+#        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class RegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+    
     
 @permission_classes([AllowAny])
 class LoginView(APIView):
@@ -35,16 +48,17 @@ class LoginView(APIView):
             user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
             return Response(data={"error":"Account does not exist"})
-            #raise AuthenticationFailed('Account does not exist')
         if user is None:
-            raise AuthenticationFailed('User does not exist')
+            return Response(data={'error':'User does not exist'})
         if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password')
+            return Response(data={'error':'Incorrect password'})
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
         return Response({
             'access_token': str(access_token),
-            'refresh_token': str(refresh_token)
+            'refresh_token': str(refresh_token),
+            'user': user.username
+            
         })
 
 @permission_classes([AllowAny])   
@@ -59,6 +73,39 @@ class LogoutView(APIView):
             return Response(data={"User logged out"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e),'token':str(request.data)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+        
+
+class InviteView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        # send email
+        return Response(data={"message":"Invitation sent to {}".format(email)}, status=status.HTTP_200_OK)
+
+        
+class PropertyListCreate(generics.ListCreateAPIView):   
+    queryset = Property.objects.all()     
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class PropertyDelete(generics.DestroyAPIView):
+    queryset = Property.objects.all()
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_destroy(self, instance):
+        instance.delete()        
+        
+        
+        
+        
+        
         
 # def register_user(request):
 #     if request.method == 'POST':

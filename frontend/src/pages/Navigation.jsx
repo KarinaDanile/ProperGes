@@ -1,26 +1,35 @@
-import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/UserContext";
 
-import { Link, NavLink } from "react-router-dom";
-
-export function Navigation({ isAuth }) {
+export function Navigation() {
+  const {user} = useContext(AuthContext);
   return (
     <div>
       <nav className="navbar navbar-expand navbar-dark" >
         <h1>ProperGes</h1>
         <div className="links">
-          {isAuth && 
+          
             <Link to="/">Home</Link>
-          }
 
-          {isAuth ? (
-            <Link to="/user/logout">Logout</Link>
+            
+
+          {user ? (
+            <>
+              <Link to="/invite">Invite</Link>
+              <Link to="/logout">Logout</Link>
+            </>
           ) : (
-            <Link to="/user/login">Login</Link>
+            <>
+              <Link to="/register">Register</Link>
+              <Link to="/login">Login</Link>
+            </>
           )}
+        
         </div>
         
       </nav>
-      <p>isAuth: {isAuth.toString()}</p>
+     
     </div>
   );
 }
