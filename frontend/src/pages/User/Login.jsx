@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { baseURL } from '../utils/constants';
+import { baseURL } from '../../utils/constants';
 
-import Form from '../components/Form';
+import Form from '../../components/Form';
 
 /*const Login = ({setauth}) => {   
 

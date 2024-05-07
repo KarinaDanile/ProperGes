@@ -2,9 +2,9 @@
 import Cookies from 'js-cookie';
 import { useEffect, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/UserContext';
+import { AuthContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { baseURL } from '../utils/constants';
+import { baseURL } from '../../utils/constants';
 
 const Logout = () => {
     const navigate = useNavigate();

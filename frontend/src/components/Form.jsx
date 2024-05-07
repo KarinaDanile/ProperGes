@@ -62,7 +62,8 @@ export default function Form({route, method}) {
                     placeholder="Username"
                     onChange={handleChange}
                     required
-                />
+                /> 
+                <br />
                 <input
                     type="password"
                     name="password"
@@ -71,6 +72,7 @@ export default function Form({route, method}) {
                     onChange={handleChange}
                     required
                 />
+                <br />
                 <button type="submit">{name}</button>
             </form>
             {loading && <div>Loading...</div>}

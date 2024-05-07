@@ -13,6 +13,9 @@ migrate:
 	docker exec -it backend-container python manage.py makemigrations
 	docker exec -it backend-container python manage.py migrate
 
+superuser:
+	docker exec -it backend-container python manage.py createsuperuser --no-input
+
 terminal-front:
 	docker exec -it frontend-container /bin/bash
 
