@@ -8,6 +8,19 @@ export default function ProtectedRoute({ children }) {
     const navigate = useNavigate();
     const [isAuthorized, setIsAuthorized] = useState(null);
 
+    const isExpired = (token) => {
+        const decoded = jwtDecode(token);
+        const tokenExp = decoded.exp;
+        const now = Date.now() / 1000;
+        return tokenExp < now;
+    }
+
+    const clearCookies = () => {
+        Cookies.remove('access_token');
+        Cookies.remove('refresh_token');
+    
+    }
+
     useEffect(() => {   
         auth().catch((e) => {
             console.error(e);
@@ -20,6 +33,12 @@ export default function ProtectedRoute({ children }) {
     const refreshToken = async () => {
         console.log('refreshToken')
         const refresh_token = Cookies.get('refresh_token');
+
+        if (isExpired(refresh_token)){
+            setIsAuthorized(false);
+            clearCookies();
+            return;
+        }
         try{
             const res = await api.post('/token/refresh/', { 
                 refresh: refresh_token 
@@ -42,11 +61,8 @@ export default function ProtectedRoute({ children }) {
             setIsAuthorized(false);
             return;
         }
-        const decoded = jwtDecode(token);
-        const tokenExp = decoded.exp;
-        const now = Date.now() / 1000;
-        
-        if(tokenExp < now){
+        if (isExpired(token)){
+            clearCookies();
             await refreshToken();
         } else {
             setIsAuthorized(true);

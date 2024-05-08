@@ -77,10 +77,12 @@ class LogoutView(APIView):
 
 class InviteView(APIView):
     def post(self, request):
-        email = request.data.get('email')
-        # send email
-        return Response(data={"message":"Invitation sent to {}".format(email)}, status=status.HTTP_200_OK)
-
+        try:
+            email = request.data.get('email')
+            # send email
+            return Response(data={"message":"Invitation sent to {}".format(email)}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(data={"error":str(e)})
         
 class PropertyListCreate(generics.ListCreateAPIView):   
     queryset = Property.objects.all()     
@@ -102,9 +104,16 @@ class PropertyDelete(generics.DestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()        
         
-        
-        
-        
+# @permission_classes([AllowAny])        
+# def get_tokens_for_user(user):
+#     try:
+#         refresh = RefreshToken.for_user(user)
+#     except Error:
+#         return Response(data={"error":str(Error)})
+#     return {
+#         'refresh': str(refresh),
+#         'access': str(refresh.access_token),
+#     }     
         
         
 # def register_user(request):

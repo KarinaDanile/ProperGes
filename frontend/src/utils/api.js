@@ -1,7 +1,7 @@
 // Axios interceptor
 
 import axios from 'axios';
-import { access_token, refresh_token, baseURL } from './constants';
+import { access_token, baseURL } from './constants';
 
 const api = axios.create({
     baseURL: baseURL
