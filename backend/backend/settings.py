@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
 ]
 
-AUTH_USER_MODEL = 'api.CustomUser'
+AUTH_USER_MODEL = 'api.Agent'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -165,6 +165,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # EMAIL CONFIGURATION

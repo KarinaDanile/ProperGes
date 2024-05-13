@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import CustomUser
+from .models import Agent
 
 #@receiver(post_save, sender=CustomUser)
 #def send_email_verification(sender, instance, created, **kwargs):

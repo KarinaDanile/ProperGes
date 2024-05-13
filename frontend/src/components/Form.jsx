@@ -28,14 +28,10 @@ export default function Form({route, method}) {
         setLoading(true);
         try {
             const {data} = await api.post(route, formData);
-            if (data.error) {
-                setError(data.error)
-                return;
-            }
             
             if (method === 'login') {
-                Cookies.set('access_token', data.access_token, { expires: 1 });
-                Cookies.set('refresh_token', data.refresh_token, { expires: 1 });
+                Cookies.set('access_token', data.access_token, { expires: 1, sameSite: 'none', secure: true});
+                Cookies.set('refresh_token', data.refresh_token, { expires: 1, sameSite: 'none', secure: true});
                 setUser(data.user)
                 navigate('/');
             } else {
@@ -43,7 +39,10 @@ export default function Form({route, method}) {
             }
 
         } catch (error) {
-            setError("Ha ocurrido un error al iniciar sesion", error);
+            setError(error.response.data.error)
+            setTimeout(() => {
+                setError(null);
+            }, 2000);
         } finally {
             setLoading(false);
         }

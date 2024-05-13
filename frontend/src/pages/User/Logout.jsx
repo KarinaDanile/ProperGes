@@ -22,8 +22,8 @@ const Logout = () => {
                 console.log(data.error)
                 return;
             }
-            Cookies.remove('access_token', { expires: 1 });
-            Cookies.remove('refresh_token', { expires: 1 });
+            Cookies.remove('access_token',  { expires: 1, sameSite: 'none', secure: true});
+            Cookies.remove('refresh_token',  { expires: 1, sameSite: 'none', secure: true});
             setUser(null);
             navigate('/login/');
         }

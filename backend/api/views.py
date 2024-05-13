@@ -4,16 +4,17 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, TokenError
 
-from .serializers import CustomUserSerializer, PropertySerializer
+from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import CustomUser, Property
+from .models import Agent, Property
 
 #@permission_classes([AllowAny])
 #class RegisterView(APIView):
@@ -24,13 +25,15 @@ from .models import CustomUser, Property
 #            return Response(data=serializer.data)
 #        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+################## AUTH ############################
+
 class RegisterView(generics.CreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+    queryset = Agent.objects.all()
+    serializer_class = AgentSerializer
     permission_classes = [AllowAny]
     
     def post(self, request):
-        serializer = CustomUserSerializer(data=request.data)
+        serializer = AgentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data)
@@ -41,17 +44,18 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
-        #email = request.data.get('email')
         password = request.data.get('password')
         
         try:
-            user = CustomUser.objects.get(username=username)
-        except CustomUser.DoesNotExist:
-            return Response(data={"error":"Account does not exist"})
+            user = Agent.objects.get(username=username)
+        except Agent.DoesNotExist:
+            return Response(data={"error":"Account does not exist"}, status=status.HTTP_404_NOT_FOUND)
         if user is None:
-            return Response(data={'error':'User does not exist'})
+            return Response(data={'error':'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        if not user.is_active:
+            return Response(data={'error':'Acount is inactive'}, status=status.HTTP_403_FORBIDDEN)
         if not user.check_password(password):
-            return Response(data={'error':'Incorrect password'})
+            return Response(data={'error':'Incorrect password'}, status=status.HTTP_401_UNAUTHORIZED)
         access_token = AccessToken.for_user(user)
         refresh_token = RefreshToken.for_user(user)
         return Response({
@@ -59,6 +63,10 @@ class LoginView(APIView):
             'refresh_token': str(refresh_token),
             'user': user.username
             
+            
+            # Aqui añadir mas campos del usuario
+            # como is_active, is_admin 
+        
         })
 
 @permission_classes([AllowAny])   
@@ -79,11 +87,74 @@ class InviteView(APIView):
     def post(self, request):
         try:
             email = request.data.get('email')
+            # comprobar si email es correcto
             # send email
             return Response(data={"message":"Invitation sent to {}".format(email)}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(data={"error":str(e)})
+            return Response(data={"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+###########################################################
+
+########################## AVATAR ############################
+
+class ChangeAvatar(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def post(self, request, format=None):
+        try:
+            agent = Agent.objects.get(username=request.user)
+            serializer = AvatarSerializer(agent, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(data={"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+###########################################################
+
+####################### AGENTS ########################
+
+class AgentListCreate(generics.ListCreateAPIView):
+    queryset = Agent.objects.all()
+    serializer_class = AgentSerializer
+    permission_classes = [IsAuthenticated]
+    # falta el permiso de solo admin 
+    # solo los admin pueden listar, crear y editar otros agentes
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AgentUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Agent.objects.all()
+    serializer_class = AgentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def partial_update(self, request, *args, **kwargs):
+        agent = Agent.objects.get(username=request.user)
+        serializer = AgentSerializer(agent, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
         
+        restricted_fields = ['is_staff', 'is_superuser']
+        
+        for field in request.data.keys():
+            if field in restricted_fields:
+                return Response(data={"error":f"You cannot change this {field}"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        self.perform_update(serializer)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        
+###########################################################
+
+####################### PROPERTIES ########################
+
+    
 class PropertyListCreate(generics.ListCreateAPIView):   
     queryset = Property.objects.all()     
     serializer_class = PropertySerializer
@@ -95,14 +166,29 @@ class PropertyListCreate(generics.ListCreateAPIView):
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    
-class PropertyDelete(generics.DestroyAPIView):
+
+class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
     
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     def perform_destroy(self, instance):
-        instance.delete()        
+        instance.delete()
+
+
+# class PropertyDelete(generics.DestroyAPIView):
+#     queryset = Property.objects.all()
+#     serializer_class = PropertySerializer
+#     permission_classes = [IsAuthenticated]
+    
+#     def perform_destroy(self, instance):
+#         instance.delete()        
         
 # @permission_classes([AllowAny])        
 # def get_tokens_for_user(user):
@@ -116,54 +202,7 @@ class PropertyDelete(generics.DestroyAPIView):
 #     }     
         
         
-# def register_user(request):
-#     if request.method == 'POST':
-#         serializer = CustomUserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     return Response(data={"message":"Please use POST method to register a user"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-# def user_login(request):
-#     if request.method == 'POST':
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-#         user = None
-#         if '@' in username:
-#             try:
-#                 user = CustomUser.objects.get(email=username)
-#             except ObjectDoesNotExist:
-#                 return Response(data={"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
-#         if not user:
-#             user = authenticate(username=username, password=password)
-            
-#         if user:
-#             token, _ = Token.objects.get_or_create(user=user)
-#             return Response(data={"token":token.key}, status=status.HTTP_200_OK)
-        
-#         return Response({'error':'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-
-# @permission_classes([IsAuthenticated])
-# def user_logout(request):
-#     if request.method == 'POST':
-#         try:
-#             request.user.auth_token.delete()
-#             return Response(data={"message":"User logged out"}, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-#     return Response(data={"message":"Please use POST method to logout"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-def verify_email(request, id):
-    user = CustomUser.objects.get(id=id)
-    if not user.email_verified:
-        user.email_verified = True
-        user.save()
-    return redirect('')
-   
         
 class PingView(APIView):
     def get(self, request):

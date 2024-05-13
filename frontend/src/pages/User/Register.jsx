@@ -40,17 +40,11 @@ export default function Register() {
             const { password2, ...finalData } = formData;
             try {
                 const {data} = await api.post(`${baseURL}/register/`, finalData);
-                if (data.error) {
-                    setError(data.error)
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                    return;
-                }
+                console.log(data)
                 navigate('/login/');
                 
             } catch (error) {
-                setError("Error al registrar usuario");
+                setError(error.response.data.error)
                 console.log(error)
                 setTimeout(() => {
                     setError(null);

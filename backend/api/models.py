@@ -1,61 +1,94 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import os
+
+def get_upload_path(instance, filename):
+    return os.path.join(
+        'images', 'avatar', str(instance.property.id), filename)
 
 # Custom user / Agent
-class CustomUser(AbstractUser):
+class Agent(AbstractUser):
     phone = models.CharField(max_length=15, blank=True, null=True)  
-    #email_verified = models.BooleanField(default=False)
-
+    is_admin = models.BooleanField(default=False)
+    avatar = models.ImageField(upload_to=get_upload_path, blank=True, null=True)
+    
     def __str__(self):
         return self.username
 
+class Client(models.Model):
+    client_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=15)
+    created = models.DateTimeField(auto_now_add=True)
+    client_type_options = [
+        ('comprador', 'Comprador'),
+        ('vendedor', 'Vendedor'),
+        ('ambos', 'Comprador y vendedor'), 
+    ]
+    client_type = models.CharField(max_length=100, choices=client_type_options, default='comprador')
+
+    def __str__(self):
+        return self.name
+    
 
 class Property(models.Model):
-    id = models.AutoField(primary_key=True)
+    property_id = models.AutoField(primary_key=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
-    #beds = models.IntegerField()
-    #baths = models.IntegerField()
-    #sqft = models.IntegerField()
-    #province = models.CharField(max_length=100)
-    #state = models.CharField(max_length=100) # comunidades autónomas
-    #owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='properties')
-    #home_type = models.CharField(max_length=100)
-    #photo_main = models.ImageField(upload_to='photos/%Y/%m/%d/')
-    is_published = models.BooleanField(default=True)
+    beds = models.IntegerField()
+    baths = models.IntegerField()
+    sqft = models.IntegerField()
+    province = models.CharField(max_length=100)
+    state = models.CharField(max_length=100) # comunidades autónomas
+    owner = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='properties')
+    
+    type_options = [
+        ('', 'Selecciona tipo de propiedad'),
+        ('apartamento', 'Apartamento'),
+        ('casa', 'Casa'),
+        ('chalet', 'Chalet'),
+        ('duplex', 'Duplex'),
+        ('estudio', 'Estudio'),
+        ('local', 'Local'),
+        ('oficina', 'Oficina'),
+        ('piso', 'Piso'),
+        ('plaza_garaje', 'Plaza de garaje'),
+        ('solar', 'Solar'),
+        ('trastero', 'Trastero'),
+        ('villa', 'Villa'),
+        ('otro', 'Otro')   
+    ]
+    property_type = models.CharField(max_length=100, choices=type_options, default='')
+    is_available = models.BooleanField(default=True)
     list_date = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.id
     
+
+class PropertyImage(models.Model):
+    product = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='property/images', blank=True, null=True)
+
     
 class Invitation(models.Model):
-    id = models.AutoField(primary_key=True)
+    invite_id = models.AutoField(primary_key=True)
     email = models.EmailField()
     token_sent = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
-
+    sender = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='invitations')
+    for_admin = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.email
     
-class Client(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone = models.CharField(max_length=15)
-    created = models.DateTimeField(auto_now_add=True)
-    buyer = models.BooleanField(default=False)
-    seller = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-    
 class Comment(models.Model):
-    id = models.AutoField(primary_key=True)
+    comment_id = models.AutoField(primary_key=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(Agent, on_delete=models.CASCADE)
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
@@ -63,10 +96,10 @@ class Comment(models.Model):
         return self.text
     
 class Visit(models.Model):
-    id = models.AutoField(primary_key=True)
+    visit_id = models.AutoField(primary_key=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='visits')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='visits')
-    agent = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='visits')
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='visits')
     date = models.DateTimeField()
     comments = models.CharField(max_length=200, blank=True, null=True)
     visit_state_options = [
@@ -81,10 +114,9 @@ class Visit(models.Model):
         return self.property.address
     
 class Offer(models.Model):
-    id = models.AutoField(primary_key=True)
+    offer_id = models.AutoField(primary_key=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='offers')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='offers')
-    agent = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='offers')
     offered_price = models.DecimalField(max_digits=10, decimal_places=2)
     created = models.DateTimeField(auto_now_add=True)
     comments = models.CharField(max_length=200, blank=True, null=True)
@@ -100,7 +132,7 @@ class Offer(models.Model):
         return self.property.address
     
 class Reservation(models.Model):
-    id = models.AutoField(primary_key=True)
+    reserve_id = models.AutoField(primary_key=True)
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='reservations')
     reservation_date = models.DateTimeField()
     comments = models.CharField(max_length=200, blank=True, null=True)
@@ -116,7 +148,7 @@ class Reservation(models.Model):
         return self.property.address
     
 class Sale(models.Model):
-    id = models.AutoField(primary_key=True)
+    sale_id = models.AutoField(primary_key=True)
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='sales')
     sale_date = models.DateTimeField()
     comments = models.CharField(max_length=200, blank=True, null=True)
