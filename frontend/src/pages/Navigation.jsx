@@ -16,6 +16,7 @@ export function Navigation() {
 
           {user ? (
             <>
+              <Link to="/properties">Propiedades</Link>
               <Link to="/invite">Invite</Link>
               <Link to="/logout">Logout</Link>
             </>

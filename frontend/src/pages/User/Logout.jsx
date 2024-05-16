@@ -12,8 +12,13 @@ const Logout = () => {
     const {setUser} = useContext(AuthContext);
 
     const logout = async () => {
-        let refresh_token = {
+        const refresh_token = {
             refresh_token: Cookies.get('refresh_token')
+        }
+        if (!refresh_token.refresh_token){
+            setUser(null);
+            navigate('/login/');
+            return;
         }
         try{
             const {data} = await 
@@ -22,8 +27,8 @@ const Logout = () => {
                 console.log(data.error)
                 return;
             }
-            Cookies.remove('access_token',  { expires: 1, sameSite: 'none', secure: true});
-            Cookies.remove('refresh_token',  { expires: 1, sameSite: 'none', secure: true});
+            Cookies.remove('access_token',  { sameSite: 'none' });
+            Cookies.remove('refresh_token', { sameSite: 'none' });
             setUser(null);
             navigate('/login/');
         }

@@ -12,6 +12,7 @@ import Invite from './pages/User/Invite';
 import Register from './pages/User/Register';
 
 import ProtectedRoute from './components/ProtectedRoute';
+import { Propiedades } from './pages/Properties/Propiedades';
 
 
 
@@ -30,10 +31,26 @@ const App = () => {
                       </ProtectedRoute>
                     } 
                   />
+                  <Route path='/invite/'
+                    element={
+                      <ProtectedRoute>
+                        <Invite />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path='/properties/'
+                    element={
+                      <ProtectedRoute>
+                        <Propiedades />
+                      </ProtectedRoute>
+                    } 
+                  />
+
+
                   <Route path='/login/' element={<Login />} />
                   <Route path='/logout/' element={<Logout />} />
                   <Route path='/register/' element={<Register />} />
-                  <Route path='/invite/' element={<Invite />} />
+                  
                   
               </Routes>
           </Router >

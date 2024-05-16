@@ -4,7 +4,7 @@ from .models import Agent, Property, PropertyImage
 class AgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
-        fields = ['username', 'password', 'email', 'phone']
+        fields = ['username', 'password', 'email', 'phone', 'is_active', 'is_admin']
         extra_kwargs = {'password': {'write_only': True}}
     
     def create(self, validated_data):

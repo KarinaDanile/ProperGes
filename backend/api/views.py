@@ -1,5 +1,5 @@
 from django.shortcuts import render
-#from django.contrib.auth import authenticate
+from django.contrib.auth.models import Group
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -123,6 +123,9 @@ class AgentListCreate(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     # falta el permiso de solo admin 
     # solo los admin pueden listar, crear y editar otros agentes
+    # no, porque los agentes pueden editar su perfil
+    # eso significa que para que un agente edite su perfil tendrá que 
+    # usar el AgentUpdateView? o endpoints individuales?
     
     def perform_create(self, serializer):
         if serializer.is_valid():
@@ -136,6 +139,9 @@ class AgentUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = AgentSerializer
     permission_classes = [IsAuthenticated]
     
+    if not Group.objects.filter(name='adminGroup').exists():
+        Group.objects.create(name='adminGroup')
+    
     def partial_update(self, request, *args, **kwargs):
         agent = Agent.objects.get(username=request.user)
         serializer = AgentSerializer(agent, data=request.data, partial=True)
@@ -146,6 +152,17 @@ class AgentUpdateView(generics.RetrieveUpdateAPIView):
         for field in request.data.keys():
             if field in restricted_fields:
                 return Response(data={"error":f"You cannot change this {field}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        if 'is_admin' in request.data.keys():
+            is_admin = serializer.validated_data['is_admin']
+            
+            group = Group.objects.get(name='adminGroup')
+            if is_admin:
+                agent.user.groups.add(group)
+            else:
+                agent.user.groups.remove(group)
+        
         
         self.perform_update(serializer)
         return Response(data=serializer.data, status=status.HTTP_200_OK)

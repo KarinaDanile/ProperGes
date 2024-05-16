@@ -17,17 +17,13 @@ export default function Invite() {
         console.log('Inviting:', formData);
         try {
             const { data } = await api.post('/invite/', formData);
-           
-            if (data.error) {
-                console.log(data.error)
-                return;
-            }
+
             // Notificar exito notificacion al usuario
             console.log(data);
 
         }
         catch (error) {
-            console.error('Error inviting:', error);
+            console.error(error.response.data.error);
         }
     }
 

@@ -1,5 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/UserContext";
+import ListUsers from "./User/ListUsers";
+
 
 const Home = () => {
     const {user} = useContext(AuthContext);

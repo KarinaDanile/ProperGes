@@ -27,3 +27,14 @@ nav h1{
   align-items: end;
   gap: 1rem;
 }
+
+
+.addPropertyForm{
+  background-color: rgb(221, 226, 231);
+  z-index: 1;
+  position: fixed;
+  width: 500px;
+  height: 60%;
+  border-radius: 4%;
+  padding: 16px;
+}

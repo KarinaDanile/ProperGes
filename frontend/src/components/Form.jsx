@@ -30,8 +30,8 @@ export default function Form({route, method}) {
             const {data} = await api.post(route, formData);
             
             if (method === 'login') {
-                Cookies.set('access_token', data.access_token, { expires: 1, sameSite: 'none', secure: true});
-                Cookies.set('refresh_token', data.refresh_token, { expires: 1, sameSite: 'none', secure: true});
+                Cookies.set('access_token', data.access_token, { sameSite: 'none'});
+                Cookies.set('refresh_token', data.refresh_token, { sameSite: 'none' });
                 setUser(data.user)
                 navigate('/');
             } else {

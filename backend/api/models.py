@@ -27,7 +27,8 @@ class Client(models.Model):
         ('ambos', 'Comprador y vendedor'), 
     ]
     client_type = models.CharField(max_length=100, choices=client_type_options, default='comprador')
-
+    is_active = models.BooleanField(default=True)
+    
     def __str__(self):
         return self.name
     

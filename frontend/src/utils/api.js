@@ -1,7 +1,8 @@
 // Axios interceptor
 
+import Cookies from 'js-cookie';
 import axios from 'axios';
-import { access_token, baseURL } from './constants';
+import { baseURL } from './constants';
 
 const api = axios.create({
     baseURL: baseURL
@@ -9,7 +10,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const token = access_token;
+        const token = Cookies.get('access_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -22,3 +23,22 @@ api.interceptors.request.use(
 
 
 export default api;
+
+
+export const getUsers = async () => {
+    try {
+        const res = await api.get('/agents/');
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getProperties = async () => {
+    try {
+        const res = await api.get('/properties/');
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
