@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { baseURL } from '../../utils/constants';
 
-import Form from '../../components/Form';
+import LoginForm from '../../components/LoginForm';
 
 /*const Login = ({setauth}) => {   
 
@@ -65,6 +65,6 @@ export default Login;
 
 
 export default function Login() {
-    return <Form route="/login/" method="login" />;
+    return <LoginForm route="/login/" method="login" />;
 
 }

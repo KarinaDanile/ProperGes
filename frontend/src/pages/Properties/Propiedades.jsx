@@ -29,6 +29,7 @@ export function Propiedades() {
             
             <h1>Propiedades</h1>
             <button
+                className="absolute right-5"
                 onClick={() => setShowModal(true)}
             >Añadir propiedad
             </button> <br />

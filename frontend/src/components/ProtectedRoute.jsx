@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }) {
 
     const clearCookies = () => {
         Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
+        //Cookies.remove('refresh_token');
     
     }
 
@@ -37,7 +37,7 @@ export default function ProtectedRoute({ children }) {
         console.log('refreshToken',typeof(refresh_token), refresh_token)
         if (isExpired(refresh_token)){
             setIsAuthorized(false);
-            clearCookies();
+            Cookies.remove('refresh_token');
             return;
         }
         try{
@@ -51,8 +51,9 @@ export default function ProtectedRoute({ children }) {
                 setIsAuthorized(false);
             }
         } catch (error) {
-            console.error('Error refreshing token:', error);
+            console.log('Error refreshing token:', error);
             setIsAuthorized(false);
+            return;
         }
     }
 

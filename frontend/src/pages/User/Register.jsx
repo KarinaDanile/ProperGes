@@ -60,8 +60,11 @@ export default function Register() {
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
-                <h1>Register</h1>
+            <form
+                className="flex flex-col items-center border border-gray-300 p-4 rounded-lg shadow-lg w-1/2 mx-auto mt-20 gap-1 bg-white min-w-min max-w-sm" 
+                onSubmit={handleSubmit}>                
+                <h1 className="text-xl my-2 font-bold text-center w-full pb-2 "
+                >Registro</h1>
                 <input
                     type="text"
                     name="username"
@@ -105,10 +108,18 @@ export default function Register() {
                     required
                 />
                 <br />
-                <button type="submit">Register</button>
+                <button
+                    className="w-2/3 bg-blue-500 text-white rounded-lg p-2 my-3" 
+                    type="submit">Enviar</button>
             </form>
-            {loading && <div>Loading...</div>}
-            {error && <div>{error}</div>}
+            {loading 
+            && <div
+                className="text-blue-600 border border-blue-600 border-dashed p-2 mt-2 w-1/3 mx-auto rounded-lg shadow-lg bg-white"
+                >Cargando...</div>}
+            {error 
+            && <div 
+                className="text-red-600 border border-red-600 border-dashed p-2 mt-2 w-1/3 mx-auto rounded-lg shadow-lg bg-white"
+            >{error}</div>}
         </>
     )
 }

@@ -1,11 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body{
-  display: flex;
-  justify-content: center;
-  align-content: center;
+  margin: 0;
+  padding: 0;
 }
-main{
-  margin: 5rem;
-}
+
 
 a{
   margin: 0;
@@ -13,28 +14,93 @@ a{
   color: black;
   text-decoration: none;
 }
+
 nav{
   display: flex;
   justify-content: space-between;
   gap: 2rem;
+  @apply bg-slate-200 
 }
 nav h1{
-  margin: 0;
+  margin: 0.6rem 0 0.6rem 2rem;
   padding: 0;
+
 }
 .links{
-  display: flex;;
-  align-items: end;
-  gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+
+.formWrapper {
+  @apply w-full h-full z-20 absolute flex justify-center pt-12 bg-slate-100;
+  min-width: 338px;
+} 
+
+.addForm{
+  @apply bg-white w-4/5 h-fit p-10 shadow-lg rounded-3xl;
+  input, select{
+    @apply h-10 border border-gray-300 rounded-md p-2 bg-white; 
+  }
+}
+.form-group{
+  @apply mb-2;
+}
+
+.avatar {
+  justify-self: flex-end;
+  margin-right: 2rem;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(145, 163, 243);
 }
 
 
-.addPropertyForm{
-  background-color: rgb(221, 226, 231);
-  z-index: 1;
-  position: fixed;
-  width: 500px;
-  height: 60%;
+.userSettings{
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  border: 1px solid rgb(218, 218, 218);
   border-radius: 4%;
-  padding: 16px;
+  z-index: 99;
+  top: 4rem;
+  background-color: white;
+
+  a{
+    padding: 0.5rem 1rem;
+    width: 100%;
+    margin: 0;
+    @apply font-light text-lg 
+  }
+
+  a:hover{
+    @apply text-blue-900 bg-slate-200
+  }
+}
+
+.link{
+  @apply font-light text-lg relative block after:block after:content-[''] after:relative after:h-[1px] after:bg-blue-900 after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center;
+ 
+  &:hover{
+    @apply text-blue-900
+  }
+}
+
+h1{
+  @apply font-bold text-2xl cursor-default;
+}
+
+button{
+  @apply bg-blue-500 text-white font-light text-lg px-4 py-2 rounded-md;
+  &:hover{
+    @apply bg-blue-700;
+  }
+}
+
+input{
+  @apply h-10 border border-gray-300 rounded-md p-2 bg-white;
 }

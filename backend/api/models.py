@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 from django.contrib.auth.models import AbstractUser
 import os
 
@@ -16,10 +17,10 @@ class Agent(AbstractUser):
         return self.username
 
 class Client(models.Model):
-    client_id = models.AutoField(primary_key=True)
+    client_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone = models.CharField(max_length=15)
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     client_type_options = [
         ('comprador', 'Comprador'),
@@ -34,15 +35,16 @@ class Client(models.Model):
     
 
 class Property(models.Model):
-    property_id = models.AutoField(primary_key=True)
+    property_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
+    # place_name is the full address
+    place_name = models.CharField(max_length=200)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    city = models.CharField(max_length=100, blank=True, null=True)
     beds = models.IntegerField()
     baths = models.IntegerField()
     sqft = models.IntegerField()
-    province = models.CharField(max_length=100)
-    state = models.CharField(max_length=100) # comunidades autónomas
     owner = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='properties')
     
     type_options = [
@@ -87,7 +89,7 @@ class Invitation(models.Model):
         return self.email
     
 class Comment(models.Model):
-    comment_id = models.AutoField(primary_key=True)
+    comment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(Agent, on_delete=models.CASCADE)
     text = models.TextField()
@@ -97,7 +99,7 @@ class Comment(models.Model):
         return self.text
     
 class Visit(models.Model):
-    visit_id = models.AutoField(primary_key=True)
+    visit_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='visits')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='visits')
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='visits')
@@ -115,7 +117,7 @@ class Visit(models.Model):
         return self.property.address
     
 class Offer(models.Model):
-    offer_id = models.AutoField(primary_key=True)
+    offer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='offers')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='offers')
     offered_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -133,7 +135,7 @@ class Offer(models.Model):
         return self.property.address
     
 class Reservation(models.Model):
-    reserve_id = models.AutoField(primary_key=True)
+    reserve_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     offer = models.ForeignKey(Offer, on_delete=models.CASCADE, related_name='reservations')
     reservation_date = models.DateTimeField()
     comments = models.CharField(max_length=200, blank=True, null=True)
@@ -149,7 +151,7 @@ class Reservation(models.Model):
         return self.property.address
     
 class Sale(models.Model):
-    sale_id = models.AutoField(primary_key=True)
+    sale_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='sales')
     sale_date = models.DateTimeField()
     comments = models.CharField(max_length=200, blank=True, null=True)

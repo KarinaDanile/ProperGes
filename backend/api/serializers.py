@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Agent, Property, PropertyImage
+from .models import Agent, Property, PropertyImage, Client
 
 class AgentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,3 +52,9 @@ class AvatarSerializer(serializers.ModelSerializer):
         instance.avatar = validated_data.get('avatar', instance.avatar)
         instance.save()
         return instance
+    
+    
+class ClientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Client
+        fields = '__all__'

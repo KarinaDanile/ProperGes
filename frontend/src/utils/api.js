@@ -42,3 +42,45 @@ export const getProperties = async () => {
         throw error;
     }
 }
+export const getClients = async () => {
+    try{
+        const res = await api.get('/clients/');
+        return res.data;
+    } catch (error) {
+        throw error;
+    }   
+}
+
+export const getOwners = async () => {
+    try {
+        const res = await api.get('/owners/');
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const deleteClient = async (id) => {
+    try {
+        const res = await api.delete(`/clients/${id}/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export async function getPlaces(query) {
+    try {
+        const res = await axios.get(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${query}.json`,
+            {
+                params: {
+                    access_token: import.meta.env.VITE_TOKEN,
+                }
+            }
+        );
+        return res.data.features;
+    } catch (error) {
+        console.error("Error getting places:", error);
+    }
+}

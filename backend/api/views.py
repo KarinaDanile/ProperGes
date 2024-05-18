@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from django.contrib.auth.models import Group
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
@@ -11,21 +12,13 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, TokenError
 
-from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer
+from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer, ClientSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Agent, Property
+from .models import Agent, Property, Client
 
-#@permission_classes([AllowAny])
-#class RegisterView(APIView):
-#    def post(self, request):
-#        serializer = CustomUserSerializer(data=request.data)
-#        if serializer.is_valid():
-#            serializer.save()
-#            return Response(data=serializer.data)
-#        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-################## AUTH ############################
+
+##################### AUTH ############################
 
 class RegisterView(generics.CreateAPIView):
     queryset = Agent.objects.all()
@@ -93,7 +86,7 @@ class InviteView(APIView):
         except Exception as e:
             return Response(data={"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-###########################################################
+#############################################################
 
 ########################## AVATAR ############################
 
@@ -138,9 +131,6 @@ class AgentUpdateView(generics.RetrieveUpdateAPIView):
     queryset = Agent.objects.all()
     serializer_class = AgentSerializer
     permission_classes = [IsAuthenticated]
-    
-    if not Group.objects.filter(name='adminGroup').exists():
-        Group.objects.create(name='adminGroup')
     
     def partial_update(self, request, *args, **kwargs):
         agent = Agent.objects.get(username=request.user)
@@ -197,6 +187,56 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def perform_destroy(self, instance):
         instance.delete()
+
+
+
+###########################################################
+
+####################### CLIENTS ########################
+
+
+class ClientListView(generics.ListCreateAPIView):  
+    queryset = Client.objects.all().order_by('created')
+    serializer_class = ClientSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class OwnerListView(generics.ListAPIView):  
+    serializer_class = ClientSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Client.objects.filter(
+            Q(client_type='vendedor') | Q(client_type='ambos')
+        ).order_by('created')
+    
+
+
+class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def perform_destroy(self, instance):
+        instance.delete()
+
+
+
+
+
+
+
 
 
 # class PropertyDelete(generics.DestroyAPIView):

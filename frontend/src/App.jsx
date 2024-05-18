@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { Navigation } from "./pages/Navigation";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { UserProvider } from './context/UserContext';
@@ -10,19 +8,21 @@ import Login from './pages/User/Login';
 import Logout from './pages/User/Logout';
 import Invite from './pages/User/Invite';
 import Register from './pages/User/Register';
+import ListUsers from './pages/User/ListUsers';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import { Propiedades } from './pages/Properties/Propiedades';
-
+import ListClients from './pages/Clients/ListClients';
 
 
 const App = () => {
 
     return (
-      <main>
+      <>
         <UserProvider>
           <Router>
               <Navigation  />
+              <main>
               <Routes>
                   <Route path='/' 
                     element={
@@ -45,6 +45,20 @@ const App = () => {
                       </ProtectedRoute>
                     } 
                   />
+                  <Route path='/clients/'
+                    element={
+                      <ProtectedRoute>
+                        <ListClients />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path='/users/'
+                    element={
+                      <ProtectedRoute>
+                        <ListUsers />
+                      </ProtectedRoute>
+                    } 
+                  />
 
 
                   <Route path='/login/' element={<Login />} />
@@ -53,9 +67,11 @@ const App = () => {
                   
                   
               </Routes>
+              </main>
           </Router >
         </UserProvider>
-      </main>
+      
+      </>
     )
 }
 export default App;

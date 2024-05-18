@@ -8,11 +8,11 @@ const Home = () => {
 
 
     return (
-        <div>
+        <>
             <h1>Home</h1>
             <span>Welcome to the home page</span>{user && <span>, {user}</span>}
             
-        </div>
+        </>
     )
 }
 
