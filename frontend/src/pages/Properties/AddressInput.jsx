@@ -41,6 +41,7 @@ export default function AutoCompleteInput({setFormData, formData}) {
     return (
         <div className="autoCompleteInputContainer">
             <input 
+                className="w-full p-2 rounded border border-gray-300"
                 type="text" 
                 id="address"
                 placeholder="Dirección"

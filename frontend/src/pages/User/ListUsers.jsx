@@ -23,27 +23,37 @@ export default function ListUsers() {
             ) : (
                 <>
                 <h1>Usuarios</h1>
+                <div className="tableWrapper">
                 <table border={1}>
-                    <tr>
-                        <th>Usuario</th>
-                        <th>Correo electrónico</th>
-                        <th>Teléfono</th>
-                        <th>Cuenta activada</th>
-                        <th>Permisos administrador</th>
-                    </tr>
-                
-                    { users.map(user => (
-                        <tr key={user.id} style={{border:'1px solid black'}}>
-                            <td> <b>{user.username}</b> </td>
-                            <td> {user.email} </td>
-                            <td> {user.phone} </td>
-                            <td> {user.is_active ? 'Yes' : 'No'} </td>
-                            <td> {user.is_admin ? 'Yes' : 'No'} </td>
-                            <td><button>Desactivar cuenta</button></td>
-                            <td><button>Cambiar permisos</button></td>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Correo electrónico</th>
+                            <th>Teléfono</th>
+                            <th>Cuenta activa</th>
+                            <th>Permisos administrador</th>
+                            <th></th>
                         </tr>
-                    ))}
+                    </thead>
+                    <tbody>
+                        { users.map(user => (
+                            <tr 
+                                className=" border-2 border-gray-200 bg-gray-50 hover:bg-gray-100"
+                                key={user.id} 
+                            >    
+                                <td> <b>{user.username}</b> </td>
+                                <td> {user.email} </td>
+                                <td> {user.phone} </td>
+                                <td> {user.is_active ? 'Yes' : 'No'} </td>
+                                <td> {user.is_admin ? 'Yes' : 'No'} </td>
+                                <td className="flex">
+                                    <button className="py-1 text-sm"  style={{maxWidth:"118px"}}>Desactivar cuenta</button>
+                                    <button className="py-1 text-sm ml-2" style={{maxWidth:"118px"}}>Cambiar permisos</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
+                </div>
                 </>
             )}
             

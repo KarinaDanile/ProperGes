@@ -38,15 +38,15 @@ class Property(models.Model):
     property_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     # place_name is the full address
-    place_name = models.CharField(max_length=200)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    place_name = models.CharField(max_length=200, blank=True, null=True)
+    latitude = models.CharField(max_length=100, blank=True, null=True)
+    longitude = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     beds = models.IntegerField()
     baths = models.IntegerField()
     sqft = models.IntegerField()
     owner = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='properties')
-    
+    description = models.TextField(blank=True, null=True)
     type_options = [
         ('', 'Selecciona tipo de propiedad'),
         ('apartamento', 'Apartamento'),
@@ -57,7 +57,6 @@ class Property(models.Model):
         ('local', 'Local'),
         ('oficina', 'Oficina'),
         ('piso', 'Piso'),
-        ('plaza_garaje', 'Plaza de garaje'),
         ('solar', 'Solar'),
         ('trastero', 'Trastero'),
         ('villa', 'Villa'),

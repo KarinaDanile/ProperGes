@@ -4,7 +4,7 @@ from .models import Agent, Property, PropertyImage, Client
 class AgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
-        fields = ['username', 'password', 'email', 'phone', 'is_active', 'is_admin']
+        fields = ['id','username', 'password', 'email', 'phone', 'is_active', 'is_admin']
         extra_kwargs = {'password': {'write_only': True}}
     
     def create(self, validated_data):
@@ -24,10 +24,10 @@ class PropertyImageSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(serializers.ModelSerializer):
-    images = PropertyImageSerializer(many=True)
+    images = PropertyImageSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(max_length=100000, allow_empty_file=False, use_url=False), 
-        write_only=True)
+        write_only=True, required=False)
     
     class Meta:
         model = Property
@@ -38,7 +38,7 @@ class PropertySerializer(serializers.ModelSerializer):
         # hay que ver si funciona con '__all__'
 
     def create(self, validated_data):
-        uploaded_images = validated_data.pop('uploaded_images')
+        uploaded_images = validated_data.pop('uploaded_images', [])
         property = Property.objects.create(**validated_data)
         for image in uploaded_images:
             PropertyImage.objects.create(product=property, image=image)

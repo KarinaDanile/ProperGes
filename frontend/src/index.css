@@ -19,7 +19,7 @@ nav{
   display: flex;
   justify-content: space-between;
   gap: 2rem;
-  @apply bg-slate-200 
+  @apply bg-slate-200;
 }
 nav h1{
   margin: 0.6rem 0 0.6rem 2rem;
@@ -33,48 +33,70 @@ nav h1{
 }
 
 .formWrapper {
-  @apply w-full h-full z-20 absolute flex justify-center pt-12 bg-slate-100;
+  @apply  z-20  flex justify-center pt-12 bg-slate-100;
   min-width: 338px;
+  height: 100vh;
 } 
 
 .addForm{
-  @apply bg-white w-4/5 h-fit p-10 shadow-lg rounded-3xl;
+  @apply bg-white min-w-min h-fit p-10 shadow-lg rounded-3xl;
+  
   input, select{
     @apply h-10 border border-gray-300 rounded-md p-2 bg-white; 
   }
 }
+
+form{
+  @apply flex flex-col;
+  
+  button{
+    @apply mt-6;
+  }
+}
+
 .form-group{
   @apply mb-2;
 }
 
+.form-group label{
+  @apply text-lg font-light;
+  min-width: 150px;
+  max-width:200px;
+}
+.tableWrapper{
+  @apply overflow-x-auto mx-24 xl:mx-48;
+}
+
+table{
+  @apply min-w-full mt-6 ;
+
+  th{
+    @apply bg-slate-200 text-center text-lg font-light p-2;
+  }
+  tr{
+    @apply border-y-2 text-center border-gray-200 bg-gray-50 hover:bg-gray-100;
+  }
+  td{
+    @apply text-center text-lg font-light p-4;
+  }
+}
+
+
 .avatar {
-  justify-self: flex-end;
-  margin-right: 2rem;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(145, 163, 243);
+  @apply w-12 h-12 rounded-full bg-slate-50 justify-center items-center flex mr-12 shadow-md drop-shadow-lg;
+ 
 }
 
 
 .userSettings{
-  position: absolute;
+  @apply absolute flex-col bg-white rounded-md shadow-md ;
   display: none;
-  flex-direction: column;
   border: 1px solid rgb(218, 218, 218);
-  border-radius: 4%;
-  z-index: 99;
   top: 4rem;
-  background-color: white;
+  z-index: 9999;
 
   a{
-    padding: 0.5rem 1rem;
-    width: 100%;
-    margin: 0;
-    @apply font-light text-lg 
+    @apply font-light text-lg px-5 py-2 w-full;
   }
 
   a:hover{

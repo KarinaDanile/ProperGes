@@ -196,7 +196,7 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ClientListView(generics.ListCreateAPIView):  
-    queryset = Client.objects.all().order_by('created')
+    queryset = Client.objects.all().order_by('-created')
     serializer_class = ClientSerializer
     permission_classes = [IsAuthenticated]
     
@@ -213,7 +213,7 @@ class OwnerListView(generics.ListAPIView):
     def get_queryset(self):
         return Client.objects.filter(
             Q(client_type='vendedor') | Q(client_type='ambos')
-        ).order_by('created')
+        ).order_by('-created')
     
 
 

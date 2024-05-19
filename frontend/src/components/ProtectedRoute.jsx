@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }) {
 
     const clearCookies = () => {
         Cookies.remove('access_token');
-        //Cookies.remove('refresh_token');
+        Cookies.remove('refresh_token');
     
     }
 
@@ -45,7 +45,7 @@ export default function ProtectedRoute({ children }) {
                 refresh: refresh_token 
             });
             if (res.status === 200){
-                Cookies.set('access_token', data.access_token, { sameSite: 'none'});
+                Cookies.set('access_token', res.access_token, { sameSite: 'none'});
                 setIsAuthorized(true);
             } else {
                 setIsAuthorized(false);

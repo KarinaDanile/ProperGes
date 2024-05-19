@@ -1,81 +1,72 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import api from "../../utils/api";
+import { getClients } from "../../utils/api";
 
-export default function AddEditClient({ handleModalClose, setShowModal, clients, clientToEdit }) {
+export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
     
-    const [client, setClient] = useState({
-        name: clientToEdit ? clientToEdit.name :'',
-        email: clientToEdit ? clientToEdit.email :'',
-        phone: clientToEdit ? clientToEdit.phone :'',
-        client_type: clientToEdit ? clientToEdit.client_type : 'comprador'
+    const [owner, setOwner] = useState({
+        name : newOwner ? newOwner.name : '',
+        email: '',
+        phone: '',
+        client_type: 'vendedor'
     });
+
+    const [ clients, setClients ] = useState([]);
+
+    useEffect(() => {   
+        try  {
+            getClients().then((data) => {
+                setClients(data);
+                console.log(data)
+            }
+            ).catch((error) => {
+                console.error(error);
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    },[]);
 
     const [error, setError] = useState(null);
 
     const handleChange = (e) => {
-        setClient({
-            ...client,
+        setOwner({
+            ...owner,
             [e.target.name]: e.target.value,
         });
     }
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         // comprobar si hay por un correo o un telefono
-        if (!client.email && !client.phone) {
+        if (!owner.email && !owner.phone) {
             setError("Debe introducir un método de contacto");
             setTimeout(() => {
                 setError(null);
             }, 2000);
             return;
         } else {
-            if(clientToEdit) {
-                // comprobar si se han hecho cambios
-                if (client.name === clientToEdit.name && client.email === clientToEdit.email && client.phone === clientToEdit.phone && client.client_type === clientToEdit.client_type) {
-                    handleModalClose();
-                    return;
-                }
-
-                try {
-                    const response = await api.put(`/clients/${clientToEdit.client_id}/`, client );
-
-                    if (response.status === 200) {
-                        handleModalClose();
-                    } else {
-                        setError('Ha ocurrido un error en el put');
-                        setTimeout(() => {
-                            setError(null);
-                        }, 2000);
+                // comprobar si el ownere ya existe con la info recuperada en el front
+                const ownerExists = () => {
+                    if(owner.email !== "") {
+                        return clients.find(c => c.email === owner.email);
                     }
-                } catch (error) {
-                    setError('Ha ocurrido un error al editar el cliente');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                }
-
-            } else {
-                // comprobar si el cliente ya existe con la info recuperada en el front
-                const clientExists = () => {
-                    if(client.email !== "") {
-                        return clients.find(c => c.email === client.email);
-                    }
-                    if(client.phone !== "") {
-                        return clients.find(c => c.phone === client.phone);
+                    if(owner.phone !== "") {
+                        return clients.find(c => c.phone === owner.phone);
                     }
                     return false;
                 }
-                if (clientExists()) {
-                    setError("Ya existe un cliente con ese correo o teléfono");
+                if (ownerExists()) {
+                    setError("Ya existe un ownere con ese correo o teléfono");
                     setTimeout(() => {
                         setError(null);
                     }, 2000);
                     return;
                 }
-                console.log(client)
+                console.log(owner)
                 try {
-                    const response = await api.post('/clients/', client );
+                    const response = await api.post('/clients/', owner );
 
                     if (response.status === 201) {
                         handleModalClose();
@@ -86,12 +77,12 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                         }, 2000);
                     }
                 } catch (error) {
-                    setError('Ha ocurrido un error al añadir el cliente');
+                    setError('Ha ocurrido un error al añadir el ownere');
                     setTimeout(() => {
                         setError(null);
                     }, 2000);
                 }
-            }            
+                      
         }
     }
 
@@ -99,14 +90,14 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
         <>
             <div className="formWrapper">
                 <div className="addForm">
-                    <h3 className="text-xl border-b-2 mb-4">Añadir nuevo cliente</h3>
+                    <h3 className="text-xl border-b-2 mb-4">Añadir nuevo propietario</h3>
                     
-                    <form onSubmit={handleSubmit} >
+                    <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label>
                                 Nombre: {" "}
                                 <input
-                                    value={client.name}
+                                    value={owner.name}
                                     onChange={handleChange}
                                     type="text"
                                     name="name"
@@ -118,7 +109,7 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                             <label>
                                 Correo electrónico: {" "}
                                 <input
-                                    value={client.email}
+                                    value={owner.email}
                                     onChange={handleChange}
                                     type="email"
                                     name="email"
@@ -129,7 +120,7 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                             <label>
                                 Teléfono: {" "}
                                 <input
-                                    value={client.phone}
+                                    value={owner.phone}
                                     onChange={handleChange}
                                     type="tel"
                                     name="phone"
@@ -140,7 +131,7 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                         <div className="form-group">
                             <label>
                                 Tipo de cliente: {" "}
-                                <select name="client_type" required value={client.client_type} onChange={handleChange}>
+                                <select name="owner_type" required value={owner.client_type} onChange={handleChange}>
                                     <option value="comprador">Comprador</option>
                                     <option value="vendedor">Vendedor</option>
                                     <option value="ambos">Vendedor y comprador</option>

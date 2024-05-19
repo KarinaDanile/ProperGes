@@ -2,7 +2,7 @@ import ReactMapGl, { Marker } from 'react-map-gl';
 import PointerIcon from '../assets/pointer.png';
 import { useState } from 'react';
 
-const TOKEN = import.meta.env.VITE_TOKEN
+//const TOKEN = import.meta.env.VITE_TOKEN
 
 function Map({ longitude, latitude }) {
     const [viewport, setViewport] = useState({
