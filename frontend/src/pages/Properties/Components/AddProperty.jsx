@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import CreatableSelect from 'react-select/creatable';
 import { NumericFormat } from 'react-number-format';
 import AutoCompleteInput from "./AddressInput";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { getOwners } from "../../utils/api";
-import AddOwner from "../Clients/AddOwner";
-import api from "../../utils/api";
+import { getOwners } from "../../../utils/api";
+import AddOwner from "../../Clients/AddOwner";
+import api from "../../../utils/api";
+import { useDropzone } from "react-dropzone";
 
 
-export default function AddProperty({setShowModal}) {
-    const [ conApi, setConApi ] = useState(false);
+export default function AddProperty({setShowModal, updateProperties}) {
+    const [ conApi, setConApi ] = useState(true);
     const [formData, setFormData] = useState({
-        property_type: "",
+        property_type: "apartamento",
         price: "",
         streetAndNumber: "",
         city: "",
@@ -24,8 +25,9 @@ export default function AddProperty({setShowModal}) {
         baths: "",
         sqft: "",
         owner: "",
+        description: "",
+        images: [],
     });
-
     const [ error, setError ] = useState(null);
     const [ owners, setOwners ] = useState([]);
     const [ value, setValue ] = useState(null); // owner value from creatable select
@@ -35,7 +37,7 @@ export default function AddProperty({setShowModal}) {
         email: '',
         phone: ''
     });
-
+    const [ files, setFiles ] = useState([]);
 
     useEffect(() => {
         getOwners().then((data) => {
@@ -58,8 +60,6 @@ export default function AddProperty({setShowModal}) {
         'Local', 
         'Oficina',
         'Piso', 
-        'Solar', 
-        'Trastero',
         'Villa', 
         'Otro'   
     ]
@@ -73,21 +73,30 @@ export default function AddProperty({setShowModal}) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // update owner
-        console.log("value",value)
-        console.log("value.client_id",value.client_id)
-
-       
         formData.owner = value.client_id;
         formData.property_type = formData.property_type.toLowerCase();
      
-        console.log('Adding property:', formData);
-      
+        const formDataFinal = new FormData();
+        Object.keys(formData).forEach(key => {
+            if (key === 'images') {
+                files.forEach(file => {
+                    formDataFinal.append('images', file);
+                });
+            } else {
+                formDataFinal.append(key, formData[key])
+            };
+        });
+        console.log('Adding property:', formDataFinal);
         try {
-            const response = await api.post('/properties/', formData);
-            
+            const response = await api.post('/properties/', formDataFinal, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+            });
+            console.log(response)
             if (response.status === 201) {
                 setShowModal(false);
+                updateProperties();
             } else {
                 setError('Ha ocurrido un error en el post');
                 setTimeout(() => {
@@ -101,7 +110,6 @@ export default function AddProperty({setShowModal}) {
             }, 2000);
         }
     }
-
 
     const cleanForm = () => {
         setFormData({
@@ -122,14 +130,10 @@ export default function AddProperty({setShowModal}) {
     }
 
     const handleCreateNewOwner = (inputValue) => {
-        // crear nuevo propietario y peticion a la API
-       
-        console.log('Creating new owner with', inputValue);
         setNewOwner({
             ...newOwner,
             name: inputValue,
         })
-        
         setShowOwnerCreate(true);
     }
 
@@ -157,6 +161,31 @@ export default function AddProperty({setShowModal}) {
         }).finally(() => {
             console.log('Owners loaded');
         });
+    }
+
+    const onDrop = useCallback(acceptedFiles => {
+        console.log('accepted files',acceptedFiles);
+        console.log('files',files)
+        if(acceptedFiles?.length){
+            setFiles(previousFiles => [
+                ...previousFiles,
+                ...acceptedFiles.map(file => 
+                    Object.assign(file, {
+                        preview: URL.createObjectURL(file)
+                    })
+                )
+            ])
+        }
+        
+    }, []);
+    const { getRootProps, getInputProps } = useDropzone({
+        onDrop, 
+        accept:{'image/*': []},
+        maxSize: 1000000,
+    });
+
+    const removeFile = (name) => {
+        setFiles(files => files.filter(file => file.name !== name));
     }
  
     return (
@@ -206,7 +235,6 @@ export default function AddProperty({setShowModal}) {
                             getNewOptionData={(value, label) => ({ id: value, label: label, __isNew__: true}) }
                             createOptionPosition="first"
                             required
-                            
                         />               
                     </label>
                 </div>
@@ -290,14 +318,65 @@ export default function AddProperty({setShowModal}) {
                             required
                         />
                     </label>
+
                 </div>
-                
+
+                <div className="form-group">    
+                 <label>
+                        <textarea 
+                            className="w-full border border-gray-300 p-2 min-h-32 "
+                            placeholder="Escriba aquí la descripción de la propiedad..."
+                            name="description" 
+                            id="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                        ></textarea>
+                    </label>
+                </div>          
+                <div className="uploadContainer">
+                    <div  {...getRootProps({
+                        className:"bg-gray-100 p-6 w-44 border-2 border-dashed"
+                    })}>
+                        <input {...getInputProps()} />
+                        <p className="font-light text-gray-500 text-sm">Arrastra aquí las imágenes o haz click para seleccionarlas</p>
+                    </div>
+
+                    <div className="flex flex-wrap">
+                        {files.map((file) => (
+                            <div
+                                className="relative p-3"
+                                key={file.name} 
+                            >
+                                <img 
+                                    src={file.preview}
+                                    alt={file.name}
+                                    width={100}
+                                    height={100}
+                                    onLoad={() => {
+                                        URL.revokeObjectURL(file.preview);
+                                    }}
+                                    
+                                />
+                                <button
+                                    className="m-0 absolute top-0 p-1 right-0 bg-transparent rounded-full text-red-600 font-bold hover:text-2xl hover:bg-transparent"
+                                    type="button"
+                                    onClick={() => removeFile(file.name)}
+                                >
+                                    X
+                                </button>
+                            </div>
+                            
+                        ))}
+                    </div>
+                </div>
+
                 
                 <br />
                 <div className="flex justify-between flex-row-reverse">
-                    <button type="submit">Añadir propiedad</button>
+                    <button className="btn-add" type="submit">Añadir propiedad</button>
                     
                     <button
+                        className="btn-cancel"
                         onClick={() => setShowModal(false)}
                     >Cerrar</button>
                 </div>

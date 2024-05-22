@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getPlaces } from "../../utils/api";
+import { getPlaces } from "../../../utils/api";
 
 export default function AutoCompleteInput({setFormData, formData}) {
     const [query, setQuery] = useState(""); 

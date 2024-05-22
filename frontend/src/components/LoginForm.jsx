@@ -3,6 +3,8 @@ import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { AuthContext } from '../context/UserContext';
+import Spinner from "./Spinner";
+
 
 export default function LoginForm({route, method}) {
     const {setUser} = useContext(AuthContext);
@@ -33,6 +35,8 @@ export default function LoginForm({route, method}) {
                 Cookies.set('access_token', data.access_token, { sameSite: 'none'});
                 Cookies.set('refresh_token', data.refresh_token, { sameSite: 'none' });
                 setUser(data.user)
+                const userData = {'is_admin': data.is_admin, 'is_active': data.is_active}
+                localStorage.setItem('userData', JSON.stringify(userData));
                 navigate('/');
             } else {
                 navigate('/login/');
@@ -57,17 +61,17 @@ export default function LoginForm({route, method}) {
 
     return (
         <>
-            <div className="absolute bg-white w-screen h-screen left-0 top-0 flex flex-col items-center pt-20">
+            <div className="absolute mt-40 bg-gray-50 w-screen h-screen left-0 top-0 flex flex-col items-center">
                 <form 
-                    className="h-1/2 w-96 border-2 rounded-3xl p-4 flex flex-col justify-center gap-3 items-center" 
+                    className="h-auto w-96  bg-white border-2 rounded-3xl p-4 flex flex-col justify-center gap-3 items-center" 
                     onSubmit={handleSubmit}>
-                    <h1 className="mb-6">{name}</h1>
+                    <h1 className="mt-10 mb-7">{name}</h1>
                     <input
                         className="w-3/4 border-2 rounded-xl p-2"
                         type="text"
                         name="username"
                         value={formData.username}
-                        placeholder="Username"
+                        placeholder="Usuario"
                         onChange={handleChange}
                         required
                     /> 
@@ -77,14 +81,14 @@ export default function LoginForm({route, method}) {
                         type="password"
                         name="password"
                         value={formData.password}
-                        placeholder="Password"
+                        placeholder="Contraseña"
                         onChange={handleChange}
                         required
                     />
                     <br />
-                    <button type="submit">Acceder</button>
+                    <button className="mb-6 btn-add" type="submit">Acceder</button>
                 </form>
-                {loading && <div className="font-light text-lg mt-2 text-blue-700 " >Loading...</div>}
+                {loading && <Spinner />}
                 {error && <div>{error}</div>}
             </div>
         </>

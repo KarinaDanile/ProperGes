@@ -27,6 +27,7 @@ const Logout = () => {
                 console.log(data.error)
                 return;
             }
+            localStorage.clear();
             Cookies.remove('access_token',  { sameSite: 'none' });
             Cookies.remove('refresh_token', { sameSite: 'none' });
             setUser(null);

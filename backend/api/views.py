@@ -1,36 +1,88 @@
 from django.shortcuts import render
 from django.db.models import Q
 from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import user_passes_test
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status, generics, filters
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, TokenError
 
-from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer, ClientSerializer
+from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer, ClientSerializer, ChangePasswordSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Agent, Property, Client
+import uuid
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 
+from .models import Agent, Property, Client, Invitation
+
+
+def is_admin(user):
+    return user.is_admin
+
+def send_invitation_email(email, sender):
+    token = uuid.uuid4().hex
+    Invitation.objects.create(email=email, sender=sender, token=token)
+    invite_url = f"{settings.FRONTEND_URL}/register?token={token}"
+    
+    send_mail(
+        'Invitación de registro ProperGes',
+        f'¡Hola! Has sido invitado a registrarte en nuestra plataforma de gestión inmobiliaria. Haz click en el siguiente enlace para registrarte: {invite_url}',
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+    )
+
+# Check if token is valid and if so, return registering user's email
+class ValidateInvitationToken(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response({'error':'Token is missing'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        invitation = get_object_or_404(Invitation, token=token)
+        
+        if invitation.is_valid():
+            return Response({'email':invitation.email}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error':'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 ##################### AUTH ############################
+
+
+class InviteView(APIView):
+    def post(self, request):
+        try:
+            email = request.data.get('email')
+            sender = request.user
+            
+            send_invitation_email(email, sender)
+            
+            return Response(data={"message":"Invitación enviada a {}".format(email)}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(data={"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = Agent.objects.all()
     serializer_class = AgentSerializer
     permission_classes = [AllowAny]
     
-    def post(self, request):
-        serializer = AgentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+    #def post(self, request):
+    #    serializer = AgentSerializer(data=request.data)
+    #    if serializer.is_valid():
+    #        serializer.save()
+    #        return Response(data=serializer.data)
+    #    return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
     
     
 @permission_classes([AllowAny])
@@ -54,7 +106,9 @@ class LoginView(APIView):
         return Response({
             'access_token': str(access_token),
             'refresh_token': str(refresh_token),
-            'user': user.username
+            'user': user.username,
+            'is_admin': user.is_admin,
+            'is_active': user.is_active
             
             
             # Aqui añadir mas campos del usuario
@@ -76,15 +130,6 @@ class LogoutView(APIView):
             return Response({'error': str(e),'token':str(request.data)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
         
 
-class InviteView(APIView):
-    def post(self, request):
-        try:
-            email = request.data.get('email')
-            # comprobar si email es correcto
-            # send email
-            return Response(data={"message":"Invitation sent to {}".format(email)}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(data={"error":str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 #############################################################
 
@@ -114,11 +159,6 @@ class AgentListCreate(generics.ListCreateAPIView):
     queryset = Agent.objects.all()
     serializer_class = AgentSerializer
     permission_classes = [IsAuthenticated]
-    # falta el permiso de solo admin 
-    # solo los admin pueden listar, crear y editar otros agentes
-    # no, porque los agentes pueden editar su perfil
-    # eso significa que para que un agente edite su perfil tendrá que 
-    # usar el AgentUpdateView? o endpoints individuales?
     
     def perform_create(self, serializer):
         if serializer.is_valid():
@@ -156,6 +196,22 @@ class AgentUpdateView(generics.RetrieveUpdateAPIView):
         
         self.perform_update(serializer)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+    
+
+
+###########################################################
+
+####################### PASSWORD ########################
+
+        
+class ChangePassword(generics.UpdateAPIView):
+    queryset = Agent.objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self):
+        return self.request.user 
+
         
 ###########################################################
 
@@ -163,9 +219,12 @@ class AgentUpdateView(generics.RetrieveUpdateAPIView):
 
     
 class PropertyListCreate(generics.ListCreateAPIView):   
-    queryset = Property.objects.all()     
+    queryset = Property.objects.all().order_by('-list_date') 
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['place_name', 'city', 'property_type', 'price']
+    ordering_fields = ['price', 'beds', 'baths', 'sqft']
     
     def perform_create(self, serializer):
         if serializer.is_valid():

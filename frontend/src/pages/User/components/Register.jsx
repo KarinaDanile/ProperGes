@@ -1,11 +1,8 @@
-import { useState } from "react";
-import api from "../../utils/api";
-import { baseURL } from "../../utils/constants";
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import api from "../../../utils/api";
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Register() {
-    const navigate = useNavigate();
-
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -15,6 +12,37 @@ export default function Register() {
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
+    const useQuery = () => {
+        return new URLSearchParams(useLocation().search);
+    };
+
+    const query = useQuery();
+    const token = query.get('token');
+
+    useEffect(() => {
+        if (token) {
+            setLoading(true);
+            api.post(`/validate_invitation_token/`, {token: token})
+                .then((res) => {
+                    if (res.status === 200) {
+                        setFormData({
+                            ...formData,
+                            email: res.data.email,
+                        });
+                    } else {
+                        setError('Enlace no válido o expirado');
+                    }
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.log(error);
+                    setError('Error al validar enlace');
+                    setLoading(false);
+                });
+        }
+    }, []);
 
     const handleChange = (e) => {
         setFormData({
@@ -39,7 +67,7 @@ export default function Register() {
             // if match remove password2 from formData
             const { password2, ...finalData } = formData;
             try {
-                const {data} = await api.post(`${baseURL}/register/`, finalData);
+                const {data} = await api.post(`/register/`, finalData);
                 console.log(data)
                 navigate('/login/');
                 
@@ -61,7 +89,7 @@ export default function Register() {
     return (
         <>
             <form
-                className="flex flex-col items-center border border-gray-300 p-4 rounded-lg shadow-lg w-1/2 mx-auto mt-20 gap-1 bg-white min-w-min max-w-sm" 
+                className="flex flex-col items-center p-4 rounded-lg shadow-lg w-1/2 mx-auto mt-20 gap-1 bg-white min-w-min max-w-sm" 
                 onSubmit={handleSubmit}>                
                 <h1 className="text-xl my-2 font-bold text-center w-full pb-2 "
                 >Registro</h1>

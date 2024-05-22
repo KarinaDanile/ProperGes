@@ -24,24 +24,19 @@ class PropertyImageSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(serializers.ModelSerializer):
-    images = PropertyImageSerializer(many=True, read_only=True)
-    uploaded_images = serializers.ListField(
-        child=serializers.ImageField(max_length=100000, allow_empty_file=False, use_url=False), 
-        write_only=True, required=False)
+    images = PropertyImageSerializer(many=True, read_only=True, required=False)
     
     class Meta:
         model = Property
         fields = '__all__'
-        # en el tutorial se listan todos los campos individualmente y se añade el de
-        # images que es el related name de PropertyImage para listar las imagenes
-        # y uploaded_images para subir imagenes
-        # hay que ver si funciona con '__all__'
 
     def create(self, validated_data):
-        uploaded_images = validated_data.pop('uploaded_images', [])
+        images = self.context.get('request').FILES.getlist('images')
+        
         property = Property.objects.create(**validated_data)
-        for image in uploaded_images:
-            PropertyImage.objects.create(product=property, image=image)
+        
+        for image in images:
+            PropertyImage.objects.create(property=property, image=image)
         return property
         
 class AvatarSerializer(serializers.ModelSerializer):
@@ -58,3 +53,29 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = '__all__'
+        
+        
+        
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+    
+    class Meta:
+        model = Agent
+        fields = ['old_password', 'new_password']
+    
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('Contraseña antigua incorrecta')
+        return value
+    #def validate_new_password(self, value):
+    #    if len(value) < 8:
+    #        raise serializers.ValidationError('La nueva contraseña debe tener al menos 8 caracteres')
+    #    return value
+    
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.save()
+        return user

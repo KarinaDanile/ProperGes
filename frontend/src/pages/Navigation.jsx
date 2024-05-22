@@ -1,50 +1,72 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/UserContext";
+import { useState, useEffect, useRef } from "react";
 
 export function Navigation() {
   const {user} = useContext(AuthContext);
+  const [sidebarOpen, setsidebarOpen] = useState(false);
+  const sidebarRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      //const isClickOnAvatar = e.target.classList.contains('avatar') || e.target.parentElement?.classList.contains('avatar');
+      if(!e.target.closest('.avatar') && sidebarRef.current ){
+        setsidebarOpen(false);
+      }
+    }
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    setsidebarOpen(!sidebarOpen);
+  }
+
+  /*
+      <NavLink to="/invite">Invite</NavLink>
+      <NavLink to="/users">Usuarios</NavLink>
+      <NavLink to="/register">Register</NavLink>
+  */
+
   return (
     <>
-      <nav className="p-2">
+      <nav>
         <h1 className="text-xl italic">ProperGes</h1>
         <div className="links">
           
           {user && (
-            <>
-              <Link className="link" to="/">Home</Link>
-              <Link className="link" to="/properties">Propiedades</Link>
-              <Link className="link" to="/clients">Clientes</Link>
-            </>
+            <div className="links">
+              <NavLink 
+                className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
+                to="/">Home</NavLink>
+              <NavLink 
+                className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
+                to="/properties">Propiedades</NavLink>
+              <NavLink 
+                className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
+                to="/clients">Clientes</NavLink>
+            </div>
           )}
         
         </div>
         { user && (
-           <div className="avatar"
-           onClick={
-             () => {
-               const userSettings = document.querySelector('.userSettings');
-               if(userSettings.style.display === 'none') {
-                 userSettings.style.display = 'flex';
-               } else {
-                 userSettings.style.display = 'none';}
-             }
-           }
-         >
-           <span>{user.charAt(0).toUpperCase()}</span>
-           <div className="userSettings">
-             <Link to="/invite">Invite</Link>
-             <Link to="/users">Usuarios</Link>
-             <Link to="/logout">Logout</Link>
-             <Link to="/register">Register</Link>
- 
-           </div>
-         </div>
-        
+          <div className="avatar" onClick={() => toggleSidebar()}>
+            <span className="cursor-default" onClick={() => toggleSidebar()} >{user.charAt(0).toUpperCase()}</span>
+          </div>
         )}
-       
-          
-
+        { sidebarOpen && (
+          <div ref={sidebarRef} className="userSettings">
+            <NavLink to="/settings">Configuración</NavLink>
+            <NavLink to="/invite">Invite</NavLink>
+            <NavLink to="/register">Register</NavLink>
+            <NavLink className="border-t" to="/logout">Cerrar sesión</NavLink>
+          </div>
+        )}
+        
+        
 
       </nav>
      

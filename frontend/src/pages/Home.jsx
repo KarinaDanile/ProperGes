@@ -1,18 +1,20 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/UserContext";
-import ListUsers from "./User/ListUsers";
-
+import { useToast } from "rc-toastr";
+import { capitalize } from "../utils/property_utils";
 
 const Home = () => {
     const {user} = useContext(AuthContext);
-
+    const {toast} = useToast(); 
 
     return (
-        <>
-            <h1>Home</h1>
-            <span>Welcome to the home page</span>{user && <span>, {user}</span>}
-            
-        </>
+        <div className="flex max-h-full flex-col gap-2 items-center p-6 bg-gray-100">
+            <h1>Bienvenido/a{user && <span>, {capitalize(user)}</span>}</h1>
+            <span>Este es tu dashboard, ahora mismo está un poco vacío</span>
+            <button 
+                className="bg-blue-100 p-2 rounded" 
+                onClick={() => toast.success("success message")}>Prueba toast</button>
+        </div>
     )
 }
 

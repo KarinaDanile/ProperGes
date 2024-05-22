@@ -51,6 +51,15 @@ export const getClients = async () => {
     }   
 }
 
+export const updateClientState = async (id, data) => {
+    try {
+        const res = await api.patch(`/clients/${id}/`, data);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const getOwners = async () => {
     try {
         const res = await api.get('/owners/');

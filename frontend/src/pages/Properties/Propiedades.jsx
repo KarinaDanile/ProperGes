@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom";
 import { getProperties } from "../../utils/api";
-import AddProperty from "./AddProperty";
+import AddProperty from "./Components/AddProperty";
 import Spinner from "../../components/Spinner";
+import { capitalize, formatToCurrency, formatDateString, limitLines } from "../../utils/property_utils";
+import { IoBed } from "react-icons/io5";
+import { TfiRulerAlt2 } from "react-icons/tfi";
+import { LiaToiletSolid } from "react-icons/lia";
 
 export function Propiedades() {
     const [propiedades, setPropiedades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [viewState, setViewState] = useState('list');
 
-    useEffect(() => {   
+    const navigate = useNavigate();
+
+    const handleRowClick = (property) => {
+        navigate(`/properties/${property.property_id}/`, {state: { property }});
+    }
+
+    const getData = () => {
         getProperties().then((data) => {
             setPropiedades(data);
         }).catch((error) => {
@@ -16,7 +28,11 @@ export function Propiedades() {
         }).finally(() =>{
             setLoading(false);
         });
-        
+    }
+
+
+    useEffect(() => {   
+        getData();
     }, []);
 
     const handleNewProperty = () => {
@@ -24,37 +40,18 @@ export function Propiedades() {
         AddProperty();
     }
 
-    const capitalize = (str) => {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    const formatToCurrency = (number, locale = 'es-ES', currency = 'EUR') => {
-        return parseFloat(number).toLocaleString(locale, {
-            style: 'currency',
-            currency: currency
-        });
-    }
-
-    const formatDateString = (string) => {
-        const date = new Date(string);
-        return date.toLocaleDateString();
-    }
-
-    const limitLines = (string, limit = 3) => {
-        if (!string) return '';
-        return string.split('\n').slice(0, limit).join('\n');
-    }
+    
     
 
     return (
         <>
-            { showModal ? <AddProperty setShowModal={setShowModal} /> 
+            { showModal ? <AddProperty updateProperties={getData} setShowModal={setShowModal} /> 
             : (
                 <>
-                    <div className="flex mx-12 justify-between">
-                        <h1 className="mt-12">Propiedades</h1>
+                    <div className="flex h-24 bg-gray-50 px-16 xl:px-40 gap-10 items-center justify-between">
+                        <h1 className="p-5">Propiedades</h1>
                         <button
-                            className="mt-12"
+                            className="btn-add"
                             onClick={() => setShowModal(true)}
                         >Añadir propiedad
                         </button> 
@@ -65,8 +62,70 @@ export function Propiedades() {
                         { !propiedades.length 
                             ? <span>No hay propiedades en este momento</span> 
                             : 
-                            <div className="tableWrapper">
-                                <table border={1}>
+                            <>
+
+                            <div className="bg-gray-200 p-10 px-24 xl:px-60 flex justify-between">
+                                <div>
+                                    filtros
+                                </div>
+                                <div>
+                                    <button 
+                                        className="btn-edit border border-gray-400 p-2 rounded"
+                                        onClick={() => setViewState('grid')}
+                                    >
+                                        Grid
+                                    </button>
+                                    <button 
+                                        className="btn-edit border border-gray-400 p-2 rounded"
+                                        onClick={() => setViewState('list')}    
+                                    >
+                                        List
+                                    </button>
+                                </div>
+                            </div>
+
+                            { viewState === 'grid' &&
+                                
+                                <div className="flex justify-center flex-wrap gap-6 p-10 px-20 2xl:px-68">
+                                    { propiedades.map(propiedad => (
+                                        <div 
+                                            key={propiedad.property_id}
+                                            onClick={() => handleRowClick(propiedad)}
+                                            className="flex flex-col w-80 gap-2 p-4 border border-gray-200  rounded-lg cursor-pointer"
+                                        >
+                                            <div className="w-full h-40 bg-blue-50 flex items-center justify-center"
+                                                style={ {backgroundImage: propiedad.images.length > 0 && `url(${propiedad.images[0].image})`, backgroundSize: 'cover', backgroundPosition: 'center' } }
+                                            >
+                                            </div>
+                                            <div className="text-xl ">
+                                                {formatToCurrency(propiedad.price)}
+                                            </div>
+                                            <div className="font-light text-base ">
+                                                {propiedad.place_name}
+                                            </div>
+                                            <div className="flex flex-row gap-10">
+                                                <div className="flex gap-1 items-center">
+                                                    <IoBed />{propiedad.beds} 
+                                                </div>
+                                                <div className="flex gap-1 items-center">
+                                                    <LiaToiletSolid />{propiedad.baths}
+                                                </div>
+                                                <div className="flex gap-1 items-center">
+                                                    < TfiRulerAlt2 />{propiedad.sqft + 'm²'} 
+                                                </div>
+                                            </div>
+                                            <div className="description truncate">
+                                                {propiedad.description}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            
+                            }
+
+                            { viewState === 'list' &&
+                                <div className="tableWrapper">
+                                <table border={1} >
                                     <thead>
                                     <tr>
                                         <th></th>
@@ -86,23 +145,39 @@ export function Propiedades() {
                                     { propiedades.map(propiedad => (
                                         <tr 
                                             key={propiedad.property_id}
-                                            onClick={() => console.log('open property', propiedad)}
+                                            onClick={() => handleRowClick(propiedad)}
                                         >
-                                            <td className="p-2"> <img className="w-16 max-w-full max-h-full" src="https://via.placeholder.com/70" alt="placeholder" /></td>
+                                            <td className="p-2 "> 
+                                            { propiedad.images.length > 0 ? 
+                                                <img
+                                                    className="w-20 h-auto min-w-full min-h-full" 
+                                                    src={propiedad.images[0].image} 
+                                                    alt="property" />
+                                            :
+                                                <img 
+                                                    className="w-20 h-auto min-w-full min-h-full" 
+                                                    src="https://via.placeholder.com/70" 
+                                                    alt="placeholder" /> 
+                                            }     
+                                                </td>
                                             <td> {capitalize(propiedad.property_type)} </td>
                                             <td> {formatToCurrency(propiedad.price)} </td>
-                                            <td> {propiedad.city || propiedad.place_name || "Sin definir"} </td>
+                                            <td className="truncate"> {propiedad.city || propiedad.place_name || "Sin definir"} </td>
                                             <td> {propiedad.beds} </td>
                                             <td> {propiedad.baths} </td>
                                             <td> {propiedad.sqft + " m²"} </td>
                                             <td> {propiedad.is_available ? "Si" : "No"} </td>
                                             <td> {formatDateString(propiedad.list_date)} </td>
-                                            <td> {limitLines(propiedad.description)} </td>
+                                            <td className="truncated-text"> {limitLines(propiedad.description)} </td>
                                         </tr>
                                     ))}
                                     </tbody>
                                 </table> 
                             </div>
+                            }
+
+                            
+                            </>
                         }
                     </>
                 )}

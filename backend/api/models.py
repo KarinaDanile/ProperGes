@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 import os
 
 def get_upload_path(instance, filename):
@@ -72,17 +73,22 @@ class Property(models.Model):
     
 
 class PropertyImage(models.Model):
-    product = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='property/images', blank=True, null=True)
 
     
 class Invitation(models.Model):
     invite_id = models.AutoField(primary_key=True)
     email = models.EmailField()
-    token_sent = models.CharField(max_length=100)
+    token = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     sender = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='invitations')
-    for_admin = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False)
+    #for_admin = models.BooleanField(default=False)
+    
+    def is_valid(self):
+        valid_period = timezone.timedelta(days=1)
+        return (self.created + valid_period) > timezone.now() and not self.is_used
     
     def __str__(self):
         return self.email

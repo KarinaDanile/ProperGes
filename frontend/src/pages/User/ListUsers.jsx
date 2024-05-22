@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 import { getUsers } from "../../utils/api";
+import Spinner from "../../components/Spinner";
+import ChangePassword from "./components/ChangePassword";
 
 export default function ListUsers() {
     const [users, setUsers] = useState([]);
@@ -16,10 +18,15 @@ export default function ListUsers() {
         
     }, []);
 
+    /*
+            <p>Y todo el resultado:</p>
+            <pre>{JSON.stringify(users, null, 2)}</pre>
+    */
+
     return (
         <>
             { loading ? (
-                <span>Loading...</span>
+                <Spinner />
             ) : (
                 <>
                 <h1>Usuarios</h1>
@@ -54,11 +61,14 @@ export default function ListUsers() {
                     </tbody>
                 </table>
                 </div>
+
+
+                <ChangePassword />
+
                 </>
             )}
             
-            <p>Y todo el resultado:</p>
-            <pre>{JSON.stringify(users, null, 2)}</pre>
+            
         </>
     )
 }

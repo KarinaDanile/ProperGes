@@ -1,6 +1,5 @@
 from django.urls import path
-from django.conf.urls.static import static 
-from django.conf import settings
+
 from . import views
 from rest_framework_simplejwt.views import ( 
     TokenObtainPairView,
@@ -19,11 +18,13 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('invite/', views.InviteView.as_view(), name='invite'),
+    path('validate_invitation_token/', views.ValidateInvitationToken.as_view(), name='validate_invitation_token'),
 
     # agent endpoints
     path('agents/', views.AgentListCreate.as_view(), name='agent_list'),
     path('agents/<uuid:pk>/', views.AgentUpdateView.as_view(), name='agent_detail'),
     path('avatar/', views.ChangeAvatar.as_view(), name='avatar'),
+    path('change-password/', views.ChangePassword.as_view(), name='change_password'),
     
     # property endpoints
     path('properties/', views.PropertyListCreate.as_view(), name='property_list'),
@@ -36,4 +37,4 @@ urlpatterns = [
     
     
     #path('verify-email/<int:id>/', views.verify_email, name='verify_email')
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 

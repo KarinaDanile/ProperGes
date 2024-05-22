@@ -150,10 +150,12 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
 
                         <div className="flex justify-between">
                             <button
+                                className="btn-cancel"
                                 onClick={() => setShowModal(false)}
                             >Cerrar</button>
 
                             <button 
+                                className="btn-save"
                                 type="submit"
                             >Guardar
                             </button>

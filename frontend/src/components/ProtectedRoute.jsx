@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }) {
 
     const clearCookies = () => {
         Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
+        //Cookies.remove('refresh_token');
     
     }
 
@@ -32,9 +32,7 @@ export default function ProtectedRoute({ children }) {
 
     const refreshToken = async () => {
         const refresh_token = Cookies.get('refresh_token');
-        console.log('refreshToken', refresh_token)
 
-        console.log('refreshToken',typeof(refresh_token), refresh_token)
         if (isExpired(refresh_token)){
             setIsAuthorized(false);
             Cookies.remove('refresh_token');
@@ -44,8 +42,9 @@ export default function ProtectedRoute({ children }) {
             const res = await api.post('/token/refresh/', { 
                 refresh: refresh_token 
             });
+            console.log('refreshing token')
             if (res.status === 200){
-                Cookies.set('access_token', res.access_token, { sameSite: 'none'});
+                Cookies.set('access_token', res.data.access, { sameSite: 'none'});
                 setIsAuthorized(true);
             } else {
                 setIsAuthorized(false);
@@ -66,6 +65,7 @@ export default function ProtectedRoute({ children }) {
             return;
         }
         if (isExpired(token)){
+            console.log("access token expired");
             clearCookies();
             await refreshToken();
         } else {

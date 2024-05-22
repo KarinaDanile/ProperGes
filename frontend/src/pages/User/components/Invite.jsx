@@ -1,9 +1,10 @@
 import { useState } from "react";
-import api from "../../utils/api";
+import api from "../../../utils/api";
 
 export default function Invite() {
 
     const [formData, setFormData] = useState({email: ""});
+    const [ message, setMessage ] = useState('Invitación enviada con éxito');
 
     const handleChange = (e) => {
         setFormData({
@@ -20,12 +21,13 @@ export default function Invite() {
 
             // Notificar exito notificacion al usuario
             console.log(data);
-
+            setMessage('Invitación enviada con éxito')
         }
         catch (error) {
             console.error(error.response.data.error);
         }
     }
+
 
     return (
         <>
@@ -45,6 +47,8 @@ export default function Invite() {
                     required
                 />
                 <button type="submit">Invite</button>
+
+                {message && <p>{message}</p>}
             </form>
         </>
     )
