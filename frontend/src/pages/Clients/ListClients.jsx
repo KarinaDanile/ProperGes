@@ -107,7 +107,7 @@ export default function ListClients() {
                 : (
                     <>
                         { !clients.length
-                            ? <span>No hay clientes en este momento</span>
+                            ? <h1 className="text-center mt-16">No hay clientes en este momento</h1>
                             : 
                             (<div className="tableWrapper">
                                 

@@ -4,11 +4,10 @@ export const capitalize = (str) => {
 }
 
 export const formatToCurrency = (number, locale = 'es-ES', currency = 'EUR') => {
-    const float = parseFloat(number.replace(',', '.'));
-    const int = Math.round(float * 100) / 100;
-    return int.toLocaleString(locale, {
+    return number.toLocaleString(locale, {
         style: 'currency',
-        currency: currency
+        currency: currency,
+        minimumFractionDigits: 0,
     });
 }
 

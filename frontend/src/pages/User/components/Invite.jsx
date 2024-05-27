@@ -4,7 +4,7 @@ import api from "../../../utils/api";
 export default function Invite() {
 
     const [formData, setFormData] = useState({email: ""});
-    const [ message, setMessage ] = useState('Invitación enviada con éxito');
+    const [ message, setMessage ] = useState('');
 
     const handleChange = (e) => {
         setFormData({
@@ -36,7 +36,7 @@ export default function Invite() {
                 className="flex flex-col w-1/2 mx-auto xl:max-w-xl mt-20 p-12 gap-3 bg-white rounded-lg shadow-lg"
                 onSubmit={handleSubmit}>
                 
-                <h1>Invitar</h1>
+                <h3 className="text-xl border-b-2 mt-3 mb-4">Invitación</h3>
                 <p>Invita a otros usuarios a la plataforma</p>
                 <input
                     type="email"
@@ -46,7 +46,7 @@ export default function Invite() {
                     onChange={handleChange}
                     required
                 />
-                <button type="submit">Invite</button>
+                <button className="btn-save w-fit self-center" type="submit">Invite</button>
 
                 {message && <p>{message}</p>}
             </form>

@@ -28,7 +28,8 @@ urlpatterns = [
     
     # property endpoints
     path('properties/', views.PropertyListCreate.as_view(), name='property_list'),
-    #path('properties/delete/<int:pk>/', views.PropertyDelete.as_view(), name='property_delete'),
+    path('properties/<uuid:pk>/', views.PropertyDetailView.as_view(), name='property_detail'),
+    path('places/', views.PlaceListView.as_view(), name='place_list'),
     
     # client endpoints
     path('clients/', views.ClientListView.as_view(), name='client_list'),

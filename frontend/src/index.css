@@ -8,6 +8,9 @@ body{
   @apply font-light;
 }
 
+html{
+  @apply bg-slate-50;
+}
 
 a{
   margin: 0;
@@ -21,7 +24,7 @@ nav{
   justify-content: space-between;
   gap: 2rem;
   padding: 1rem;
-  
+  background-color: white;
   border-bottom: 1px solid rgb(224, 224, 224);
 }
 nav h1{
@@ -33,9 +36,9 @@ nav h1{
 }
 
 .formWrapper {
-  @apply  z-20  flex justify-center pt-12 bg-slate-100;
+  @apply  z-20  flex justify-center pt-12;
   min-width: 338px;
-  height: 100vh;
+  height: 100%;
 } 
 
 .addForm{
@@ -163,4 +166,51 @@ input{
 
 .slick-prev:before, .slick-next:before{
   color: rgb(150, 150, 150) !important;
+}
+
+/*  Para quitar flechas de inputs tipo number */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/*  Estilo de checkbox */
+input[type="checkbox"]{
+  appearance: none ;
+  background-color: #fff;
+  margin: 0; 
+  font: inherit;
+  color: gray;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.10em solid rgb(165, 165, 165);
+  border-radius: 0.15em;
+  transform: translate(-0.075em);
+  display: grid;
+  place-content: center;
+}
+
+input[type="checkbox"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--form-control-color);
+  background-color: CanvasText;
+  transform-origin: botton left;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%)
+}
+
+input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+input[type="checkbox"]:hover {
+  outline: max(2px, 0.15em) solid currentColor;
+  outline-offset: max(2px, 0.15em);
 }

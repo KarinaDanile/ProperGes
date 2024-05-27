@@ -23,7 +23,7 @@ const App = () => {
         <UserProvider>
           <Router>
               <Navigation  />
-              <main className='w-auto h-auto'>
+              
               <Routes>
                   <Route path='/' 
                     element={
@@ -75,8 +75,9 @@ const App = () => {
                   <Route path='/register/' element={<Register />} />
                   
                   
+                  
               </Routes>
-              </main>
+              
           </Router >
         </UserProvider>
       

@@ -2,7 +2,7 @@
 
 const Spinner = () => {
     return(
-        <div className="bg-white h-48 w-24 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div className="bg-transparent h-48 w-24 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div role="status" className="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2">
                 <svg 
                     aria-hidden="true" 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Agent, Property, PropertyImage, Client
+from .models import Agent, Property, PropertyImage, Client, Visit
 
 class AgentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,6 +18,8 @@ class AgentSerializer(serializers.ModelSerializer):
         return user
     
 class PropertyImageSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    
     class Meta:
         model = PropertyImage
         fields =  '__all__'
@@ -25,10 +27,14 @@ class PropertyImageSerializer(serializers.ModelSerializer):
 
 class PropertySerializer(serializers.ModelSerializer):
     images = PropertyImageSerializer(many=True, read_only=True, required=False)
+    iden_property = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
         fields = '__all__'
+        
+    def get_iden_property(self, obj):
+        return str(obj)
 
     def create(self, validated_data):
         images = self.context.get('request').FILES.getlist('images')
@@ -38,6 +44,20 @@ class PropertySerializer(serializers.ModelSerializer):
         for image in images:
             PropertyImage.objects.create(property=property, image=image)
         return property
+ 
+    def update(self, instance, validated_data):
+        images_data = self.context.get('request').FILES.getlist('images', [])
+        
+        instance.__dict__.update(validated_data)
+        instance.save()
+        
+        for image in images_data:
+            PropertyImage.objects.create(property=instance, image=image)
+        return instance
+ 
+
+ 
+ 
         
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,10 +70,13 @@ class AvatarSerializer(serializers.ModelSerializer):
     
     
 class ClientSerializer(serializers.ModelSerializer):
+    iden_client = serializers.SerializerMethodField()
     class Meta:
         model = Client
         fields = '__all__'
-        
+    
+    def get_iden_client(self, obj):
+        return str(obj)
         
         
 class ChangePasswordSerializer(serializers.Serializer):
@@ -79,3 +102,21 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])
         user.save()
         return user
+    
+    
+class VisitSerializer(serializers.ModelSerializer):
+    property_iden = serializers.SerializerMethodField()
+    client_iden = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Visit
+        fields = '__all__'
+    
+    def get_property_iden(self, obj):
+        property = Property.objects.get(id=obj.property_id.pk)
+        return str(property)
+
+    def get_client_iden(self, obj):
+        client = Client.objects.get(client_id=obj.client_id.pk)
+        return str(client)
+        

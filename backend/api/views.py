@@ -15,13 +15,15 @@ from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, TokenErro
 
 from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer, ClientSerializer, ChangePasswordSerializer
 from django.core.exceptions import ObjectDoesNotExist
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import PropertyFilter
 
 import uuid
 from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from .models import Agent, Property, Client, Invitation
+from .models import Agent, Property, Client, Invitation, PropertyImage
 
 
 def is_admin(user):
@@ -109,10 +111,6 @@ class LoginView(APIView):
             'user': user.username,
             'is_admin': user.is_admin,
             'is_active': user.is_active
-            
-            
-            # Aqui añadir mas campos del usuario
-            # como is_active, is_admin 
         
         })
 
@@ -222,9 +220,10 @@ class PropertyListCreate(generics.ListCreateAPIView):
     queryset = Property.objects.all().order_by('-list_date') 
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['place_name', 'city', 'property_type', 'price']
-    ordering_fields = ['price', 'beds', 'baths', 'sqft']
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = PropertyFilter
+    search_fields = ['place_name', 'place', 'region', 'property_type', 'price', 'description']
+   
     
     def perform_create(self, serializer):
         if serializer.is_valid():
@@ -238,8 +237,19 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
     
+    
+    
     def perform_update(self, serializer):
+        images_to_delete_str = self.request.data.get('imagesToDelete', '')
+        
+        images_to_delete = [int(id) for id in images_to_delete_str.split(",") if id.strip()] if images_to_delete_str else []
+        
         if serializer.is_valid():
+            
+            for image_id in images_to_delete:
+                image = PropertyImage.objects.get(id=image_id)
+                image.delete()
+                    
             serializer.save()
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -247,6 +257,12 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()
 
+
+class PlaceListView(APIView):
+    def get(self, request):
+        places = Property.objects.values_list('place', flat=True).distinct()
+        return Response(data=places, status=status.HTTP_200_OK)
+    
 
 
 ###########################################################

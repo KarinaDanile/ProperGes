@@ -32,20 +32,32 @@ class Client(models.Model):
     is_active = models.BooleanField(default=True)
     
     def __str__(self):
-        return self.name
+        if self.email and self.phone:
+            return f"{self.name} - {self.email} - {self.phone}"
+        else:
+            return f"{self.name} - {self.email or ''} {self.phone or ''}"
     
 
 class Property(models.Model):
     property_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.IntegerField()
     # place_name is the full address
     place_name = models.CharField(max_length=200, blank=True, null=True)
     latitude = models.CharField(max_length=100, blank=True, null=True)
     longitude = models.CharField(max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True)
+    # place is city or town
+    place = models.CharField(max_length=100, blank=True, null=True)
+    region = models.CharField(max_length=100, blank=True, null=True)
     beds = models.IntegerField()
     baths = models.IntegerField()
     sqft = models.IntegerField()
+    state_options = [
+        ('buen_estado', 'Buen estado'),
+        ('a_reformar', 'A reformar'),
+        ('reformado', 'Reformado'),
+        ('nuevo', 'Nuevo')
+    ]
+    state = models.CharField(max_length=100, choices=state_options, default='buen_estado')
     owner = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='properties')
     description = models.TextField(blank=True, null=True)
     type_options = [
@@ -65,17 +77,22 @@ class Property(models.Model):
     ]
     property_type = models.CharField(max_length=100, choices=type_options, default='')
     is_available = models.BooleanField(default=True)
+    year_built = models.IntegerField(blank=True, null=True)
+    is_negotiable = models.BooleanField(default=True)
     list_date = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.id
+        return f"{self.property_type} en {self.place} - {self.price}"
     
 
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='property/images', blank=True, null=True)
 
+    def delete(self, *args, **kwargs):
+        self.image.delete(save=False)
+        super().delete(*args, **kwargs)
     
 class Invitation(models.Model):
     invite_id = models.AutoField(primary_key=True)
@@ -91,7 +108,7 @@ class Invitation(models.Model):
         return (self.created + valid_period) > timezone.now() and not self.is_used
     
     def __str__(self):
-        return self.email
+        return f"Invitación a {self.email} de {self.sender}"
     
 class Comment(models.Model):
     comment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -105,10 +122,11 @@ class Comment(models.Model):
     
 class Visit(models.Model):
     visit_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='visits')
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='visits')
-    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='visits')
-    date = models.DateTimeField()
+    client_id = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='client_visits')
+    property_id = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='property_visits')
+    agent_id = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='agent_visits')
+    start = models.DateTimeField(null=True, blank=True)
+    end = models.DateTimeField(null=True, blank=True)
     comments = models.CharField(max_length=200, blank=True, null=True)
     visit_state_options = [
         ('realizada', 'Visita realizada'),
@@ -119,7 +137,7 @@ class Visit(models.Model):
     visit_state = models.CharField(max_length=100, choices=visit_state_options, default='pendiente')
 
     def __str__(self):
-        return self.property.address
+        return f"Visita en ({self.property_id}) con ({self.client_id})"
     
 class Offer(models.Model):
     offer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -137,7 +155,7 @@ class Offer(models.Model):
     offer_state = models.CharField(max_length=100, choices=offer_state_options, default='pendiente')
 
     def __str__(self):
-        return self.property.address
+        return str(self.offer_id)
     
 class Reservation(models.Model):
     reserve_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -153,7 +171,7 @@ class Reservation(models.Model):
     reservation_state = models.CharField(max_length=100, choices=reservation_state_options, default='pendiente')
 
     def __str__(self):
-        return self.property.address
+        return str(self.reserve_id)
     
 class Sale(models.Model):
     sale_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -169,4 +187,4 @@ class Sale(models.Model):
     sale_state = models.CharField(max_length=100, choices=sale_state_options, default='pendiente')
 
     def __str__(self):
-        return self.property.address
+        return str(self.sale_id)

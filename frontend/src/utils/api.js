@@ -34,14 +34,15 @@ export const getUsers = async () => {
     }
 }
 
-export const getProperties = async () => {
+export const getCities = async () => {
     try {
-        const res = await api.get('/properties/');
+        const res = await api.get('/places/');
         return res.data;
     } catch (error) {
         throw error;
     }
 }
+
 export const getClients = async () => {
     try{
         const res = await api.get('/clients/');

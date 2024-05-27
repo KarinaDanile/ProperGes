@@ -141,11 +141,13 @@ export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
 
                         <div className="flex justify-between">
                             <button
+                                className="btn-cancel"
                                 onClick={() => setShowModal(false)}
                             >Cerrar</button>
 
                             <button 
                                 type="submit"
+                                className="btn-save"
                             >Guardar
                             </button>
                         </div>

@@ -60,6 +60,7 @@ export function Navigation() {
         { sidebarOpen && (
           <div ref={sidebarRef} className="userSettings">
             <NavLink to="/settings">Configuración</NavLink>
+            <NavLink to="/users">Usuarios</NavLink>
             <NavLink to="/invite">Invite</NavLink>
             <NavLink to="/register">Register</NavLink>
             <NavLink className="border-t" to="/logout">Cerrar sesión</NavLink>

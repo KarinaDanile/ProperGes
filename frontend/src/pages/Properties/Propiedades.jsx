@@ -1,23 +1,39 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
-import { getProperties } from "../../utils/api";
 import AddProperty from "./Components/AddProperty";
 import Spinner from "../../components/Spinner";
 import { capitalize, formatToCurrency, formatDateString, limitLines } from "../../utils/property_utils";
 import { IoBed } from "react-icons/io5";
 import { TfiRulerAlt2 } from "react-icons/tfi";
 import { LiaToiletSolid } from "react-icons/lia";
+import FilterForm from "./Components/FilterForm";
+import api from "../../utils/api";  
 
 export function Propiedades() {
     const [propiedades, setPropiedades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [viewState, setViewState] = useState('list');
+    const [filters, setFilters] = useState({});
 
     const navigate = useNavigate();
 
     const handleRowClick = (property) => {
         navigate(`/properties/${property.property_id}/`, {state: { property }});
+    }
+    
+    const getProperties = (filters) => {
+        console.log(filters);
+        const params = new URLSearchParams(filters).toString();
+        api.get(`/properties/?${params}`)
+            .then((response) => {
+                console.log(response.data)
+                setPropiedades(response.data);
+            }).catch((error) => {
+                console.error(error);
+            }).finally(() =>{
+                setLoading(false);
+            });
     }
 
     const getData = () => {
@@ -30,10 +46,18 @@ export function Propiedades() {
         });
     }
 
+    const handlefilterChange = (filters) => {
+        console.log('setting filters', filters)
+        setFilters(filters);
+    }
 
     useEffect(() => {   
-        getData();
+        getProperties(filters);
     }, []);
+    
+    useEffect(() => {   
+        getProperties(filters);
+    }, [filters]);
 
     const handleNewProperty = () => {
         console.log('New property')
@@ -56,19 +80,11 @@ export function Propiedades() {
                         >Añadir propiedad
                         </button> 
                     </div>
-                { loading ? <Spinner />
-                : (
-                    <>
-                        { !propiedades.length 
-                            ? <span>No hay propiedades en este momento</span> 
-                            : 
-                            <>
-
-                            <div className="bg-gray-200 p-10 px-24 xl:px-60 flex justify-between">
-                                <div>
-                                    filtros
+                    <div className="bg-gray-200 p-10 px-24 xl:px-60 flex flex-col-reverse">
+                                <div >
+                                    <FilterForm onFilter={handlefilterChange} />
                                 </div>
-                                <div>
+                                <div className="flex justify-end">
                                     <button 
                                         className="btn-edit border border-gray-400 p-2 rounded"
                                         onClick={() => setViewState('grid')}
@@ -83,6 +99,13 @@ export function Propiedades() {
                                     </button>
                                 </div>
                             </div>
+                { loading ? <Spinner />
+                : (
+                    <>
+                        { !propiedades.length 
+                            ? <h1 className="text-center mt-24">No hay propiedades en este momento</h1> 
+                            : 
+                            <>
 
                             { viewState === 'grid' &&
                                 
@@ -124,7 +147,7 @@ export function Propiedades() {
                             }
 
                             { viewState === 'list' &&
-                                <div className="tableWrapper">
+                                <div className="tableWrapper mt-4 mb-20">
                                 <table border={1} >
                                     <thead>
                                     <tr>
@@ -162,7 +185,7 @@ export function Propiedades() {
                                                 </td>
                                             <td> {capitalize(propiedad.property_type)} </td>
                                             <td> {formatToCurrency(propiedad.price)} </td>
-                                            <td className="truncate"> {propiedad.city || propiedad.place_name || "Sin definir"} </td>
+                                            <td className="truncated-text"> {propiedad.city || propiedad.place_name || "Sin definir"} </td>
                                             <td> {propiedad.beds} </td>
                                             <td> {propiedad.baths} </td>
                                             <td> {propiedad.sqft + " m²"} </td>
