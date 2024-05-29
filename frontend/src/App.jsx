@@ -46,7 +46,7 @@ const App = () => {
                       </ProtectedRoute>
                     } 
                   />
-                  <Route path='/properties/:property_id'
+                  <Route path='/properties/:id/'
                     element={
                       <ProtectedRoute>
                         <PropertyDetails />

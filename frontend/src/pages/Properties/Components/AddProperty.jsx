@@ -134,7 +134,7 @@ export default function AddProperty({setShowModal, updateProperties}) {
             console.log(response)
             if (response.status === 201) {
                 setShowModal(false);
-                updateProperties();
+                updateProperties({});
             } else {
                 setError('Ha ocurrido un error en el post');
                 setTimeout(() => {

@@ -36,6 +36,13 @@ urlpatterns = [
     path('clients/<uuid:pk>/', views.ClientDetailView.as_view(), name='client_detail'),
     path('owners/', views.OwnerListView.as_view(), name='owner_list'),
     
+    # visit endpoints
+    path('visits/', views.VisitListCreate.as_view(), name='visit_list'),
+    path('visits/<uuid:pk>/', views.VisitDetailView.as_view(), name='visit_detail'),
+    
+    # offer endpoints
+    path('offers/', views.OfferListCreate.as_view(), name='offer_list'),
+    path('offers/<uuid:pk>/', views.OfferDetailView.as_view(), name='offer_detail'),
     
     #path('verify-email/<int:id>/', views.verify_email, name='verify_email')
 ] 

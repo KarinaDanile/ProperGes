@@ -13,7 +13,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken, TokenError
 
-from .serializers import AgentSerializer, PropertySerializer, AvatarSerializer, ClientSerializer, ChangePasswordSerializer
+from .serializers import (
+    AgentSerializer, PropertySerializer, 
+    AvatarSerializer, ClientSerializer, 
+    ChangePasswordSerializer, VisitSerializer,
+    OfferSerializer,
+    )
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import PropertyFilter
@@ -23,7 +28,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from .models import Agent, Property, Client, Invitation, PropertyImage
+from .models import (
+    Agent, Property, Client, Invitation, PropertyImage, 
+    Visit, Reservation, Offer, Sale
+    )
 
 
 def is_admin(user):
@@ -237,15 +245,11 @@ class PropertyDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
     
-    
-    
     def perform_update(self, serializer):
         images_to_delete_str = self.request.data.get('imagesToDelete', '')
-        
         images_to_delete = [int(id) for id in images_to_delete_str.split(",") if id.strip()] if images_to_delete_str else []
         
         if serializer.is_valid():
-            
             for image_id in images_to_delete:
                 image = PropertyImage.objects.get(id=image_id)
                 image.delete()
@@ -308,9 +312,67 @@ class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 
+###########################################################
+
+####################### VISITS ###########################
+
+
+class VisitListCreate(generics.ListCreateAPIView):
+    queryset = Visit.objects.all()
+    serializer_class = VisitSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VisitDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Visit.objects.all()
+    serializer_class = VisitSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def perform_destroy(self, instance):
+        instance.delete()
 
 
 
+###########################################################
+
+####################### OFFERS ############################
+
+class OfferListCreate(generics.ListCreateAPIView):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class OfferDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def perform_destroy(self, instance):
+        instance.delete()
+    
 
 
 

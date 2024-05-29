@@ -4,7 +4,9 @@ export const capitalize = (str) => {
 }
 
 export const formatToCurrency = (number, locale = 'es-ES', currency = 'EUR') => {
-    return number.toLocaleString(locale, {
+    const parsedNumber = typeof number === 'string' ? parseFloat(number) : number;
+
+    return parsedNumber.toLocaleString(locale, {
         style: 'currency',
         currency: currency,
         minimumFractionDigits: 0,
@@ -13,7 +15,24 @@ export const formatToCurrency = (number, locale = 'es-ES', currency = 'EUR') => 
 
 export const formatDateString = (string) => {
     const date = new Date(string);
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+}
+
+export const formatDateTimeString = (string) => {
+    const date = new Date(string);
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    });
 }
 
 export const limitLines = (string, limit = 1) => {

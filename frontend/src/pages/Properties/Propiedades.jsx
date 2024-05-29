@@ -18,8 +18,8 @@ export function Propiedades() {
 
     const navigate = useNavigate();
 
-    const handleRowClick = (property) => {
-        navigate(`/properties/${property.property_id}/`, {state: { property }});
+    const handleRowClick = (id) => {
+        navigate(`/properties/${id}/`);
     }
     
     const getProperties = (filters) => {
@@ -36,15 +36,6 @@ export function Propiedades() {
             });
     }
 
-    const getData = () => {
-        getProperties().then((data) => {
-            setPropiedades(data);
-        }).catch((error) => {
-            console.error(error);
-        }).finally(() =>{
-            setLoading(false);
-        });
-    }
 
     const handlefilterChange = (filters) => {
         console.log('setting filters', filters)
@@ -52,24 +43,17 @@ export function Propiedades() {
     }
 
     useEffect(() => {   
-        getProperties(filters);
+        getProperties({});
     }, []);
     
     useEffect(() => {   
         getProperties(filters);
     }, [filters]);
-
-    const handleNewProperty = () => {
-        console.log('New property')
-        AddProperty();
-    }
-
-    
     
 
     return (
         <>
-            { showModal ? <AddProperty updateProperties={getData} setShowModal={setShowModal} /> 
+            { showModal ? <AddProperty updateProperties={getProperties} setShowModal={setShowModal} /> 
             : (
                 <>
                     <div className="flex h-24 bg-gray-50 px-16 xl:px-40 gap-10 items-center justify-between">
@@ -113,7 +97,7 @@ export function Propiedades() {
                                     { propiedades.map(propiedad => (
                                         <div 
                                             key={propiedad.property_id}
-                                            onClick={() => handleRowClick(propiedad)}
+                                            onClick={() => handleRowClick(propiedad.property_id)}
                                             className="flex flex-col w-80 gap-2 p-4 border border-gray-200  rounded-lg cursor-pointer"
                                         >
                                             <div className="w-full h-40 bg-blue-50 flex items-center justify-center"
@@ -160,6 +144,7 @@ export function Propiedades() {
                                         <th>Superficie</th>
                                         <th>Disponible</th>
                                         <th>Fecha Alta</th>
+                                        <th>Actualización</th>
                                         <th>Descripción</th>
                                         
                                     </tr>
@@ -168,7 +153,7 @@ export function Propiedades() {
                                     { propiedades.map(propiedad => (
                                         <tr 
                                             key={propiedad.property_id}
-                                            onClick={() => handleRowClick(propiedad)}
+                                            onClick={() => handleRowClick(propiedad.property_id)}
                                         >
                                             <td className="p-2 "> 
                                             { propiedad.images.length > 0 ? 
@@ -191,6 +176,7 @@ export function Propiedades() {
                                             <td> {propiedad.sqft + " m²"} </td>
                                             <td> {propiedad.is_available ? "Si" : "No"} </td>
                                             <td> {formatDateString(propiedad.list_date)} </td>
+                                            <td> {formatDateString(propiedad.update)} </td>
                                             <td className="truncated-text"> {limitLines(propiedad.description)} </td>
                                         </tr>
                                     ))}

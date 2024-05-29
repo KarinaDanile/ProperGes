@@ -52,6 +52,25 @@ export const getClients = async () => {
     }   
 }
 
+export const getClient = async (id) => {
+    try{
+        const res = await api.get(`/clients/${id}/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export const getProperty = async (id) => {
+    try{
+        const res = await api.get(`/properties/${id}/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const updateClientState = async (id, data) => {
     try {
         const res = await api.patch(`/clients/${id}/`, data);
@@ -73,6 +92,15 @@ export const getOwners = async () => {
 export const deleteClient = async (id) => {
     try {
         const res = await api.delete(`/clients/${id}/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const deleteProperty = async (id) => {
+    try {
+        const res = await api.delete(`/properties/${id}/`);
         return res.data;
     } catch (error) {
         throw error;

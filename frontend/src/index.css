@@ -67,7 +67,7 @@ form{
   max-width:200px;
 }
 .tableWrapper{
-  @apply overflow-x-auto mx-24 xl:mx-48;
+  @apply overflow-x-auto mx-16 xl:mx-40;
 }
 
 table{
@@ -91,7 +91,7 @@ table{
     }
   }
   td{
-    @apply text-center text-lg font-light p-4;
+    @apply text-center text-base font-light p-4;
   }
 }
 

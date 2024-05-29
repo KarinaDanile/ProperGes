@@ -39,10 +39,7 @@ const FilterForm = ({ onFilter }) => {
         onFilter(filter);
     };
 
-    /*
-
-    */
-
+   
     return (
         <form className="flex flex-row flex-wrap justify-center mt-4 p-12 gap-3 bg-white rounded-lg shadow-lg" onSubmit={handleSubmit}>
             <h1>Filtrar</h1>
@@ -107,7 +104,23 @@ const FilterForm = ({ onFilter }) => {
                            
             />
             
-            <button className="btn-edit border m-0 border-gray-400 p-2 rounded" type="submit">Filtrar</button>
+            <button 
+                className="btn-edit border m-0 border-gray-400 p-2 rounded" 
+                type="submit"
+            >Filtrar</button>
+
+            <button
+                className="btn-edit border m-0 border-gray-400 p-2 rounded"
+                onClick={() => setFilter({
+                    place : '',
+                    beds: '',
+                    baths: '',
+                    price_min : '',
+                    price_max : '',
+                    search: ''
+                })}
+            >Limpiar</button>
+        
         </form>
     );
 

@@ -1,42 +1,102 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { formatToCurrency } from "../../utils/property_utils";
 import ImageSlider from "./Components/Slider";
 import { IoBed } from "react-icons/io5";
 import { TfiRulerAlt2 } from "react-icons/tfi";
 import { LiaToiletSolid } from "react-icons/lia";
+import { CiCircleAlert } from "react-icons/ci";
+import { LiaEuroSignSolid } from "react-icons/lia";
 import PropertyMap from "./Components/PropertyMap";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditProperty from "./Components/EditProperty";
+import { getClient, getProperty, deleteProperty } from "../../utils/api";
+import Spinner from "../../components/Spinner";
+import { capitalize, formatDateString } from "../../utils/property_utils";
 
 export default function PropertyDetails() {
     const navigate = useNavigate();
-    const state = useLocation();
-    const property = state.state.property;
+    const { id }  = useParams();
+    const [property, setProperty] = useState(null);
+    const [owner, setOwner] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const [showEditForm, setShowEditForm] = useState(false);
-    console.log(property)
-    console.log("render de details")
-    const handleEditClick = () => {
+    
+    const handleEditProperty = () => {
         setShowEditForm(true);
     }
 
+    const updateProperty = (data) => {
+        setProperty(data);
+    }
+
+    const handleDeteleProperty = () => {
+        deleteProperty(id)
+        .then(() => {
+            navigate('/properties/');
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+    }
+
+    const getAvailabilityClass = (availability) => {
+        switch (availability) {
+            case 'reservada':
+                return 'text-orange-500';
+            default:
+                return 'text-red-500';
+        }
+    
+    }
+
+    useEffect(() => {
+        getProperty(id)
+            .then((data) => {
+                setProperty(data);
+                console.log(data)
+                if(data.owner){
+                    return getClient(data.owner);
+                }
+            })
+            .then((ownerData) => {
+                setOwner(ownerData);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+
+    }, [id]);
+
+
+    
     return (
         <>
 
-        {showEditForm ? <EditProperty property={property} setShowEditForm={setShowEditForm} />
+        {showEditForm ? <EditProperty property={property} updateProperty={updateProperty} setShowEditForm={setShowEditForm} />
         :
             (
                 <>
-            <div className='flex flex-col items-center justify-center'>
+
+                {loading ? <Spinner/> 
+                
+                : (
+
+                    <div className='flex flex-col items-center justify-center'>
                         <div className="flex w-full h-24 bg-gray-100 px-16 xl:px-60 gap-10 items-center justify-between ">
                             <button className="btn-edit" onClick={() => navigate('/properties/')}>Volver</button>
                             <div className="flex bg-blue-100">
                                 <button 
-                                    onClick={handleEditClick}
+                                    onClick={handleEditProperty}
                                     className="btn-edit">
                                     Editar
                                 </button>
-                                <button className="btn-delete">
+                                <button 
+                                    onClick={handleDeteleProperty}
+                                    className="btn-delete">
                                     Eliminar
                                 </button>
                             </div>
@@ -49,10 +109,20 @@ export default function PropertyDetails() {
                             </div>
                         ): (
                             <>
-                                <div className="flex lg:flex-row flex-wrap items-center sm:flex-col gap-6 p-10" style={{width:"80%", height:"auto"}}>
+                                <div className="flex lg:flex-row flex-wrap xl:flex-nowrap flex-col gap-6 p-10" style={{width:"90%", height:"auto"}}>
 
-                                <div className="flex flex-col bg-slate-50 align-center w-5/6 lg:w-4/6 border rounded-2xl ">
-                                    <div className="images flex justify-center border border-slate-100 p-6 rounded-t-2xl">
+
+                                {
+                                    property.availability !== 'disponible' &&
+                                    <div className={`flex px-3 items-center gap-3 text-xl font-normal ${getAvailabilityClass(property.availability)} `}>
+                                        <CiCircleAlert />
+                                        <p>Propiedad Vendida</p>
+                                    </div>
+                                }
+                                <div className="flex flex-col flex-wrap bg-slate-50 align-center border rounded-2xl "
+                                   style={{minWidth:"60%", maxWidth:"800px", height:"auto"}}
+                                >
+                                    <div className="images flex w-full justify-center border border-slate-100 p-6 rounded-t-2xl">
                                         <div style={{width:"100%", height:"420px", padding:"16px"}}>
                                             {property.images && property.images.length > 0
                                                 ? property.images.length > 1 
@@ -63,9 +133,13 @@ export default function PropertyDetails() {
                                             }
                                         </div>                            
                                     </div>
-                                    
-                                    <div className="p-10 flex items-center gap-10">
-                                        <div className="text-2xl">
+                                    <div>
+                                        <h2 className="text-2xl px-10 py-2">
+                                            {capitalize(property.property_type)} en {property.place}
+                                        </h2>
+                                    </div>
+                                    <div className="p-10 py-5 flex items-center gap-10">
+                                        <div className="text-2xl font-normal">
                                             {formatToCurrency(property.price)}
                                         </div>
                                         <div className="font-light text-base ">
@@ -73,7 +147,7 @@ export default function PropertyDetails() {
                                         </div>
                                         
                                     </div>
-                                    <div className="basic-info p-4 px-10 flex flex-row gap-16">
+                                    <div className="basic-info p-4 py-3 px-10 flex flex-row gap-16">
                                         <div className="flex items-center gap-3">
                                             <IoBed/>{property.beds} 
                                         </div>
@@ -83,17 +157,46 @@ export default function PropertyDetails() {
                                         <div className="flex items-center gap-3">
                                             <TfiRulerAlt2/>{property.sqft + 'm²'} 
                                         </div>
-                                        
+                                        <div className="flex items-center gap-3">
+                                            <LiaEuroSignSolid />
+                                            {property.is_negotiable ? 'Negociable' : 'No negociable'}
+                                        </div>
                                     </div>
-                                    <div className="description p-10 ">
+
+                                    <div className="description px-10 py-5">
                                         {property.description}
+                                    </div>
+                                    <div className="px-10 py-5 border-t ">
+                                        <div>Última actualización: {formatDateString(property.update)}</div>
+                                        <div>Fecha creación: {formatDateString(property.list_date)}</div>
+                                        <div>{property.reference}</div>
                                     </div>
                                 
                                 </div>
-                                <div className="flex flex-col items-center gap-6">
-                                    <div className="bg-red-200" style={{width:"400px", height:"200px"}}></div>
-                                    <div style={{width:"400px", height:"400px"}}>
-                                        <PropertyMap />
+                                <div className="flex flex-col sm:items-center lg:items-start gap-6"
+                                    
+                                >
+                                    <div 
+                                        className=" p-5 border border-gray-200 w-full rounded-2xl" 
+                                        
+                                    >
+                                        <h2
+                                            className="text-xl font-normal px-5 py-2 border-b border-gray-200"
+                                        >Información del propietario</h2>
+                                        <div
+                                            className="p-3"
+                                        >
+                                            <p 
+                                                className="font-normal cursor-pointer text-blue-500 hover:text-blue-700"
+                                                onClick={() => navigate(`/clients/${owner.id}`)}
+                                            >{owner && owner.name}</p>
+                                            <p>Datos de contacto:</p>
+                                            <p>{owner && owner.email}</p>
+                                            <p>{owner && owner.phone}</p>
+                                        </div>
+                                    </div>
+                                    <div style={{width:"500px", height:"300px"}}>
+                                        <PropertyMap lat={property.latitude} long={property.longitude} />
                                     </div>
                                 </div>
                                 
@@ -102,6 +205,12 @@ export default function PropertyDetails() {
 
                         )}
                     </div>
+
+                )
+                
+                
+                }
+                    
                 </>
 
             )

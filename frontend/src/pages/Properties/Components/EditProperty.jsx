@@ -10,7 +10,7 @@ import { useDropzone } from "react-dropzone";
 import Spinner from "../../../components/Spinner";
 import { capitalize } from "../../../utils/property_utils";
 
-const EditProperty = ({ property, setShowEditForm}) => {
+const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
     
     
     const [ formData, setFormData ] = useState(property);
@@ -140,6 +140,7 @@ const EditProperty = ({ property, setShowEditForm}) => {
                 console.log(response);
                 if (response.status === 200) {  
                     console.log("Property updated successfully");
+                    updateProperty(response.data);
                 }
                 setShowEditForm(false);
             } catch (error){
@@ -499,10 +500,6 @@ const EditProperty = ({ property, setShowEditForm}) => {
         )
     }
 
-        
-            
-            
-            
        </>
     )
 }

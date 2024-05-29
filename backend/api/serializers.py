@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import Agent, Property, PropertyImage, Client, Visit
+from .models import (
+    Agent, Property, PropertyImage, 
+    Client, Visit, Offer
+)
 
 class AgentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,16 +110,47 @@ class ChangePasswordSerializer(serializers.Serializer):
 class VisitSerializer(serializers.ModelSerializer):
     property_iden = serializers.SerializerMethodField()
     client_iden = serializers.SerializerMethodField()
+    property_address = serializers.SerializerMethodField()
+    property_reference = serializers.SerializerMethodField()
     
     class Meta:
         model = Visit
         fields = '__all__'
     
     def get_property_iden(self, obj):
-        property = Property.objects.get(id=obj.property_id.pk)
+        property = Property.objects.get(property_id=obj.property_id.pk)
         return str(property)
+    
+    def get_property_address(self, obj):
+        property = Property.objects.get(property_id=obj.property_id.pk)
+        return str(property.place_name)
+    
+    def get_property_reference(self, obj):
+        property = Property.objects.get(property_id=obj.property_id.pk)
+        return str(property.reference)
 
     def get_client_iden(self, obj):
         client = Client.objects.get(client_id=obj.client_id.pk)
         return str(client)
         
+        
+class OfferSerializer(serializers.ModelSerializer):
+    property_iden = serializers.SerializerMethodField()
+    client_iden = serializers.SerializerMethodField()
+    property_address = serializers.SerializerMethodField()
+     
+    class Meta:
+        model = Offer
+        fields = '__all__'
+
+    def get_property_iden(self, obj):
+        property = Property.objects.get(property_id=obj.property_id)
+        return str(property)
+    
+    def get_property_address(self, obj):
+        property = Property.objects.get(property_id=obj.property_id)
+        return str(property.place_name)
+    
+    def get_client_iden(self, obj):
+        client = Client.objects.get(client_id=obj.client_id)
+        return str(client)
