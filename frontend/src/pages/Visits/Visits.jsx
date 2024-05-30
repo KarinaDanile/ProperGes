@@ -3,37 +3,40 @@ import Spinner from "../../components/Spinner";
 import api from "../../utils/api";
 import { Link } from "react-router-dom";
 import { formatDateTimeString, capitalize } from "../../utils/property_utils";
+import ConfirmModal2 from "../../utils/ConfirmModal2";
+import { isPastVisit } from "../../utils/visits_utils";
+import { FaRegEdit } from "react-icons/fa";
 
 export default function Visits() {
 
     const [visits, setVisits] = useState([]);
     const [loading, setLoading] = useState(true)
+    const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+    const [selectedVisitId, setSelectedVisitId] = useState(null);
+    const [actionType, setActionType] = useState(null);
 
-    const handleConfirmVisit = (visit_id) => async () => {
-        const confirmed = window.confirm('¿Estás seguro de que deseas marcar esta visita como realizada?');
-        if (!confirmed) return;
-        try {
-            const res = await api.patch(`/visits/${visit_id}/`, { visit_state: 'realizada' });
-            const updatedVistiIndex = visits.findIndex(visit => visit.visit_id === visit_id);
-            const updatedVisits = [...visits];
-            updatedVisits[updatedVistiIndex] = res.data;
-            setVisits(updatedVisits);
-        } catch (error) {
-            console.error(error);
-        }
+    const openConfirmModal = (visit_id, actionType) => {
+        setSelectedVisitId(visit_id);
+        setActionType(actionType);
+        setConfirmModalOpen(true);
     }
 
-    const handleCancelVisit = (visit_id) => async () => {
-        try {
-            const res = await api.patch(`/visits/${visit_id}/`, { visit_state: 'cancelada' });
-            const updatedVistiIndex = visits.findIndex(visit => visit.visit_id === visit_id);
-            const updatedVisits = [...visits];
-            updatedVisits[updatedVistiIndex] = res.data;
-            setVisits(updatedVisits)
-        } catch (error) {
-            console.error(error);
+    const handleConfirmVisit = async (confirmed) => {
+        if (confirmed && selectedVisitId) {
+            try {
+                const res = await api.patch(`/visits/${selectedVisitId}/`, { visit_state: actionType });
+                const updatedVistiIndex = visits.findIndex(visit => visit.visit_id === selectedVisitId);
+                const updatedVisits = [...visits];
+                updatedVisits[updatedVistiIndex] = res.data;
+                setVisits(updatedVisits);
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
+        setConfirmModalOpen(false);
+        setSelectedVisitId(null);
+        setActionType(null);
+    };
 
 
     useEffect(() => {
@@ -86,19 +89,36 @@ export default function Visits() {
                                             <td >{visit.client_iden}</td>
                                             <td>{capitalize(visit.visit_state)}</td>
                                             <td>
-                                                <div className="flex gap-1">
+                                                <div className="flex gap-1 justify-center">
                                                     <button
-                                                        className="btn-save"
-                                                        onClick={handleConfirmVisit(visit.visit_id)}
+                                                        className="text-blue-900 text-lg hover:border border-blue-900 p-1 rounded-md hover:shadow-md"
+
                                                     >
-                                                        Confirmar
+                                                        <FaRegEdit />
                                                     </button>
-                                                    <button
-                                                        className="btn-cancel"
-                                                        onClick={handleCancelVisit(visit.visit_id)}
-                                                    >
-                                                        Cancelar
-                                                    </button>
+
+                                                    {visit.visit_state !== 'realizada' && visit.visit_state !== 'cancelada' && (
+                                                        <>
+                                                            <button
+                                                                className="btn-save"
+                                                                disabled={!isPastVisit(visit.start)}
+                                                                onClick={() => {
+                                                                    openConfirmModal(visit.visit_id, 'realizada');
+                                                                }}
+                                                            >
+                                                                Confirmar
+                                                            </button>
+                                                            <button
+                                                                className="btn-cancel"
+                                                                onClick={() => {
+                                                                    openConfirmModal(visit.visit_id, 'cancelada');
+                                                                }}
+                                                            >
+                                                                Cancelar
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    
                                                 </div>
                                             </td>
                                             <td className="truncate">{visit.comments}</td>
@@ -108,8 +128,16 @@ export default function Visits() {
                             </table>
                         </div>
                     </>
-                )
-            }
+                )}
+
+                <ConfirmModal2
+                    accion={`${actionType === 'realizada' ? 'Confirmar' : 'Cancelar'} visita`}
+                    mensaje={`¿Estás seguro de que deseas marcar la visita como ${actionType === 'realizada' ? 'realizada' : 'cancelada'}?`}
+                    isOpen={confirmModalOpen}
+                    onClose={() => setConfirmModalOpen(false)}
+                    onConfirm={handleConfirmVisit}
+                />
+
         </div>
     )
 }

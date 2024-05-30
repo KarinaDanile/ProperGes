@@ -109,7 +109,10 @@ table{
   line-height: 1.2em;
 }
 
-
+button:disabled{
+  @apply text-gray-700 border-gray-300;
+  pointer-events: none;
+}
 
 .btn-edit{
   @apply mr-3 text-xs font-medium uppercase text-neutral-600;

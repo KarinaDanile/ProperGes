@@ -27,7 +27,7 @@ export default function ConfirmModal2({ accion, mensaje, isOpen, onClose, onConf
                             </div>
                         </div>
                         <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="button" className="mb-1 w-full justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 "
+                            <button type="button" className="mb-1 w-full justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 "
                                onClick={() => {
                                 onConfirm(true);
                                 onClose();
@@ -36,8 +36,12 @@ export default function ConfirmModal2({ accion, mensaje, isOpen, onClose, onConf
                                 Confirmar
                             </button>
                             <button type="button" className="mb-1 w-full justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 " 
-                                onClick={() => onClose()}>
-                                    Cancelar
+                                onClick={() => {
+                                    onConfirm(false);
+                                    onClose();
+                                }}
+                            >
+                                Cancelar
                             </button>
                         </div>
                     </div>
