@@ -476,7 +476,7 @@ const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
                                 
                                 <br />
                                 <div className="flex justify-between flex-row-reverse">
-                                    <button className="btn-add" type="submit">Añadir propiedad</button>
+                                    <button className="btn-add" type="submit">Guardar propiedad</button>
                                     
                                     <button
                                         className="btn-cancel"

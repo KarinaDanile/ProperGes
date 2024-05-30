@@ -48,6 +48,9 @@ export function Navigation() {
               <NavLink 
                 className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
                 to="/clients">Clientes</NavLink>
+                <NavLink 
+                className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
+                to="/calendar">Calendario</NavLink>
             </div>
           )}
         

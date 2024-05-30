@@ -12,6 +12,7 @@ stop:
 migrate:
 	docker exec -it backend-container python manage.py makemigrations
 	docker exec -it backend-container python manage.py migrate
+	docker exec -it backend-container python manage.py runserver 0.0.0.0:8000
 
 superuser:
 	docker exec -it backend-container python manage.py createsuperuser

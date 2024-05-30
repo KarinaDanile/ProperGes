@@ -14,7 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Propiedades } from './pages/Properties/Propiedades';
 import ListClients from './pages/Clients/ListClients';
 import PropertyDetails from './pages/Properties/PropertyDetails';
-
+import Calendar from './pages/Calendar/Calendar';
 
 const App = () => {
 
@@ -64,6 +64,13 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <ListUsers />
+                      </ProtectedRoute>
+                    } 
+                  />
+                   <Route path='/calendar/'
+                    element={
+                      <ProtectedRoute>
+                        <Calendar />
                       </ProtectedRoute>
                     } 
                   />

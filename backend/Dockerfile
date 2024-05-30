@@ -17,12 +17,6 @@ RUN pip install --upgrade pip && \
 
 #COPY . .
 
-RUN if [ ! -f /app/backend/initial_data_loaded ]; then \
-    python manage.py makemigrations && \
-    python manage.py migrate && \
-    python manage.py loaddata initial_data && \
-    touch /app/backend/initial_data_loaded; \
-    fi
 
 EXPOSE 8000
 

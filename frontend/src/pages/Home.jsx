@@ -6,6 +6,7 @@ import { capitalize } from "../utils/property_utils";
 import Visits from "./Visits/Visits";
 import Offers from "./Offers/Offers";
 
+
 const Home = () => {
     const {user} = useContext(AuthContext);
     const {toast} = useToast(); 
