@@ -15,6 +15,7 @@ import { Propiedades } from './pages/Properties/Propiedades';
 import ListClients from './pages/Clients/ListClients';
 import PropertyDetails from './pages/Properties/PropertyDetails';
 import Calendar from './pages/Calendar/Calendar';
+import Visits from './pages/Visits/Visits';
 
 const App = () => {
 
@@ -67,10 +68,17 @@ const App = () => {
                       </ProtectedRoute>
                     } 
                   />
-                   <Route path='/calendar/'
+                  <Route path='/calendar/'
                     element={
                       <ProtectedRoute>
                         <Calendar />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path='/visits/'
+                    element={
+                      <ProtectedRoute>
+                        <Visits />
                       </ProtectedRoute>
                     } 
                   />

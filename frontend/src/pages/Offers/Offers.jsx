@@ -59,7 +59,7 @@ export default function Offers() {
                         >
                             <h1>Ofertas</h1>
 
-                            <table>
+                            <table className="my-table">
                                 <thead>
                                     <tr>
                                         <th>Fecha y hora</th>

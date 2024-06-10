@@ -111,7 +111,7 @@ export default function ListClients() {
                             : 
                             (<div className="tableWrapper">
                                 
-                                <table border={1}>
+                                <table border={1} className="my-table">
                                     <thead>
                                         <tr>
                                             <th>Cliente</th>

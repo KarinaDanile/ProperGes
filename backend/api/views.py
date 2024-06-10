@@ -228,10 +228,11 @@ class PropertyListCreate(generics.ListCreateAPIView):
     queryset = Property.objects.all().order_by('-list_date') 
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = PropertyFilter
-    search_fields = ['place_name', 'place', 'region', 'property_type', 'price', 'description']
-   
+    search_fields = ['place_name', 'place', 'region', 'property_type', 'price', 'description', 'reference']
+    ordering_fields = ['place_name', 'place', 'sqft', 'region', 'property_type', 'description', 'reference', 'list_date', 'update', 'beds', 'baths', 'availability', 'is_negotiable', 'price']
+    ordering = ['-list_date']
     
     def perform_create(self, serializer):
         if serializer.is_valid():

@@ -18,10 +18,7 @@ export default function ListUsers() {
         
     }, []);
 
-    /*
-            <p>Y todo el resultado:</p>
-            <pre>{JSON.stringify(users, null, 2)}</pre>
-    */
+    
 
     return (
         <>

@@ -3,7 +3,7 @@ import { AuthContext } from "../context/UserContext";
 import { useToast } from "rc-toastr";
 import { capitalize } from "../utils/property_utils";
 
-import Visits from "./Visits/Visits";
+
 import Offers from "./Offers/Offers";
 
 
@@ -21,7 +21,7 @@ const Home = () => {
                 onClick={() => toast.success("success message")}>Prueba toast</button>
         </div>
 
-        <Visits />
+      
         <Offers />
         </>
     )

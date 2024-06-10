@@ -7,6 +7,7 @@ import "rc-toastr/dist/index.css"
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import 'react-tooltip/dist/react-tooltip.css'
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       config={{
         position: 'top-right',
         duration: 1000,
+        
       }}
      
     >

@@ -6,6 +6,7 @@ body{
   margin: 0;
   padding: 0;
   @apply font-light;
+  box-sizing: border-box;
 }
 
 html{
@@ -70,11 +71,14 @@ form{
   @apply overflow-x-auto mx-16 xl:mx-40;
 }
 
-table{
-  @apply min-w-full mt-6  ;
+.my-table{
+  @apply min-w-full mt-6 ;
 
   th{
-    @apply bg-slate-400 text-center text-lg font-light p-2 ;
+    @apply bg-slate-400 text-center text-lg font-light p-2;
+  }
+  th div{
+    @apply flex justify-center items-center gap-1;
   }
   th:first-child{
     @apply  rounded-tl-xl;
@@ -94,7 +98,7 @@ table{
     @apply text-center text-base font-light p-4;
   }
 }
-
+/*
 .truncated-text{
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -107,6 +111,13 @@ table{
   hyphens: auto;
   max-height: 3.5em;
   line-height: 1.2em;
+}*/
+
+.truncated-text{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 150px;
 }
 
 button:disabled{
@@ -121,7 +132,7 @@ button:disabled{
   @apply  text-xs font-medium uppercase text-red-700;
 }
 .btn-add {
-  @apply p-2 text-blue-700 border border-blue-200 hover:bg-white rounded hover:bg-transparent hover:shadow-md transition duration-300 ease-in-out;
+  @apply p-2 text-blue-700 border bg-white border-blue-200  rounded hover:shadow-md transition duration-300 ease-in-out;
 }
 .btn-cancel {
   @apply p-2 text-red-700 border border-red-200 hover:bg-white rounded hover:bg-transparent hover:shadow-md transition duration-300 ease-in-out;
@@ -164,7 +175,13 @@ h1{
 
 
 input{
-  @apply h-10 border border-gray-300 rounded-md p-2 bg-white;
+  @apply h-10 border border-gray-300 rounded-md p-2 bg-white  focus:outline-none;
+}
+.my-input:focus{
+  outline: 1px solid #4299e1;
+  outline-offset: -0.5px;
+  
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .slick-prev:before, .slick-next:before{
@@ -216,4 +233,13 @@ input[type="checkbox"]:checked::before {
 input[type="checkbox"]:hover {
   outline: max(2px, 0.15em) solid currentColor;
   outline-offset: max(2px, 0.15em);
+}
+
+.fc .fc-daygrid-event {
+  text-overflow: ellipsis;
+}
+
+
+option{
+  @apply bg-blue-500
 }

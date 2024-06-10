@@ -112,6 +112,7 @@ class VisitSerializer(serializers.ModelSerializer):
     client_iden = serializers.SerializerMethodField()
     property_address = serializers.SerializerMethodField()
     property_reference = serializers.SerializerMethodField()
+    agent_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Visit
@@ -133,6 +134,9 @@ class VisitSerializer(serializers.ModelSerializer):
         client = Client.objects.get(client_id=obj.client_id.pk)
         return str(client)
         
+    def get_agent_name(self, obj):
+        agent = Agent.objects.get(id=obj.agent_id.pk)
+        return str(agent)
         
 class OfferSerializer(serializers.ModelSerializer):
     property_iden = serializers.SerializerMethodField()
