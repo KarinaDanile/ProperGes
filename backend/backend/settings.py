@@ -14,6 +14,8 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from decouple import config
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,10 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
-
+#ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=lambda v: [s.strip() for s in v.split(',')])
 
 # Application definition
 
@@ -45,6 +47,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'api.apps.ApiConfig',
 ]
+
+if not DEBUG:
+    INSTALLED_APPS += [
+        'cloudinary',
+        'cloudinary_storage',
+    ]
 
 AUTH_USER_MODEL = 'api.Agent'
 
@@ -87,7 +95,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
 
-FRONTEND_URL = 'http://localhost:5173'
+#CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='*', cast=lambda v: [s.strip() for s in v.split(',')])
+
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -114,9 +124,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    'default': dj_database_url.config(default=config('DATABASE_URL', default=f'sqlite:///{BASE_DIR}/db.sqlite3'))
+        
+    #{
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
         # 'ENGINE': 'django.db.backends.postgresql',
         # 'NAME': config('POSTGRES_DB'),
         # 'USER': config('POSTGRES_USER'),
@@ -124,7 +136,7 @@ DATABASES = {
         # 'HOST': config('POSTGRES_HOST'),
         # 'PORT': config('POSTGRES_PORT'),
         
-    }
+    #}
 }
 
 
@@ -169,8 +181,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if DEBUG:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = 'https://res.cloudinary.com/{}/'.format(config('CLOUDINARY_CLOUD_NAME'))
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': config('CLOUDINARY_API_KEY'),
+        'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    }
 
 
 # EMAIL CONFIGURATION

@@ -18,6 +18,11 @@ export function Propiedades() {
     const [filters, setFilters] = useState({});
     const [sortField, setSortField] = useState('');
     const [sortOrder, setSortOrder] = useState('asc');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [nextPage, setNextPage] = useState(null);
+    const [prevPage, setPrevPage] = useState(null);
+    const pageSize = 10;
 
     const navigate = useNavigate();
 
@@ -32,10 +37,57 @@ export function Propiedades() {
         setFilters(prevFilters => ({...prevFilters }));
     };
     
-    const getProperties = (filters) => {
+    const handleViewChange = (view) => {
+        setViewState(view);
+        getProperties1();
+    };
+
+    const fetchProperties = async (filters, viewState) => {
+        console.log('fetching properties', filters, viewState);
+        setLoading(true);
+        try {
+            let data;
+            if (viewState === 'list'){
+                data = await getProperties(filters, viewState, currentPage);
+                setPropiedades(data.results);
+                setTotalPages(Math.ceil(data.count / pageSize));
+                setNextPage(data.next);
+                setPrevPage(data.previous);
+            } else {
+                data = await getProperties(filters, viewState);
+                setPropiedades(data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getProperties = (filters, viewState, currentPage = 1) => {
+
+        return new Promise((resolve, reject) => {
+            const params = new URLSearchParams({
+                ...filters,
+                ...(viewState === 'list' && { page: currentPage, page_size: pageSize }), 
+                ordering: sortOrder === 'asc' ? sortField : `-${sortField}`,
+            }).toString();
+
+            api.get(`/properties/?${params}`)
+                .then((response) => {
+                    console.log(response.data)
+                    resolve(response.data);
+                }).catch((error) => {
+                    console.error(error);
+                    reject(error)
+                });
+            });
+    }
+    const getProperties1 = () => {
         console.log(filters);
         const params = new URLSearchParams({
             ...filters,
+            ...(viewState === 'list' && { page: currentPage, page_size: pageSize }), 
             ordering: sortOrder === 'asc' ? sortField : `-${sortField}`,
         }).toString();
 
@@ -43,27 +95,57 @@ export function Propiedades() {
         api.get(`/properties/?${params}`)
             .then((response) => {
                 console.log(response.data)
-                setPropiedades(response.data);
+                if(viewState === 'list'){
+                    setPropiedades(response.data.results);
+                    setTotalPages(Math.ceil(response.data.count / pageSize));
+                    setNextPage(response.data.next);
+                    setPrevPage(response.data.previous);
+                }else{
+                    setPropiedades(response.data);
+                }
             }).catch((error) => {
                 console.error(error);
             }).finally(() =>{
                 setLoading(false);
             });
-    }
-
+    };
 
     const handlefilterChange = (filters) => {
         console.log('setting filters', filters)
         setFilters(filters);
-    }
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (pageUrl) => {
+        if (!pageUrl) return;
+
+        setLoading(true);
+        api.get(pageUrl)
+            .then((response) => {
+                const data = response.data;
+                setPropiedades(data.results);
+                setTotalPages(Math.ceil(data.count / pageSize));
+                setNextPage(data.next);
+                setPrevPage(data.previous);
+                setCurrentPage(pageUrl.includes('page=') ? parseInt(new URL(pageUrl).searchParams.get('page')) : 1);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
 
     useEffect(() => {   
-        getProperties({});
+        //fetchProperties(filters, viewState);
+        getProperties1();
     }, []);
     
     useEffect(() => {   
-        getProperties(filters);
-    }, [filters]);
+        //fetchProperties(filters, viewState);
+        getProperties1();
+    }, [filters, viewState]);
     
 
     const renderSortIcon = (field) => {
@@ -74,7 +156,7 @@ export function Propiedades() {
 
     return (
         <>
-            { showModal ? <AddProperty updateProperties={getProperties} setShowModal={setShowModal} /> 
+            { showModal ? <AddProperty updateProperties={() => fetchProperties(filters, viewState)} setShowModal={setShowModal} /> 
             : (
                 <>
                     
@@ -96,20 +178,20 @@ export function Propiedades() {
                                 <div className="flex justify-end">
                                     <button 
                                         className="btn-edit border border-gray-400 p-2 rounded"
-                                        onClick={() => setViewState('grid')}
+                                        onClick={() => handleViewChange('grid')}
                                     >
                                         Grid
                                     </button>
                                     <button 
                                         className="btn-edit border border-gray-400 p-2 rounded"
-                                        onClick={() => setViewState('list')}    
+                                        onClick={() => handleViewChange('list')}    
                                     >
                                         List
                                     </button>
                                 </div>
                             </div>
                         { !propiedades.length 
-                            ? <h1 className="text-center mt-24">No hay resultados</h1> 
+                            ? <h1 className="text-center my-24">No hay resultados</h1> 
                             : 
                             <div >
                                
@@ -154,7 +236,8 @@ export function Propiedades() {
                             }
 
                             { viewState === 'list' &&
-                                <div className="tableWrapper mt-4 mb-20">
+                            <>
+                                <div className="tableWrapper mt-4 ">
                                 <table border={1} className="my-table">
                                     <thead>
                                     <tr>
@@ -231,8 +314,26 @@ export function Propiedades() {
                                     ))}
                                     </tbody>
                                 </table> 
+                                
                             </div>
-                            }
+                            <div className="pagination mt-6 flex justify-center items-center mb-20">
+                                    <button
+                                        onClick={() => handlePageChange(prevPage)}
+                                        disabled={!prevPage}
+                                        className="btn-edit border border-gray-400 p-2 rounded hover:bg-white"
+                                    >
+                                        Anterior
+                                    </button>
+                                    <span className="mx-2">{currentPage} de {totalPages}</span>
+                                    <button
+                                        onClick={() => handlePageChange(nextPage)}
+                                        disabled={!nextPage}
+                                        className="btn-edit ml-2 border border-gray-400 p-2 rounded hover:bg-white"
+                                    >
+                                        Siguiente
+                                    </button>
+                                </div>
+                            </>}
 
                             
                             </div>

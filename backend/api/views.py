@@ -22,6 +22,7 @@ from .serializers import (
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import PropertyFilter
+from .pagination import CustomPagination
 
 import uuid
 from django.core.mail import send_mail
@@ -233,6 +234,7 @@ class PropertyListCreate(generics.ListCreateAPIView):
     search_fields = ['place_name', 'place', 'region', 'property_type', 'price', 'description', 'reference']
     ordering_fields = ['place_name', 'place', 'sqft', 'region', 'property_type', 'description', 'reference', 'list_date', 'update', 'beds', 'baths', 'availability', 'is_negotiable', 'price']
     ordering = ['-list_date']
+    pagination_class = CustomPagination
     
     def perform_create(self, serializer):
         if serializer.is_valid():

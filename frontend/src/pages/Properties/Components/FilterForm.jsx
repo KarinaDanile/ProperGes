@@ -15,6 +15,8 @@ const FilterForm = ({ onFilter }) => {
         search: ''
     });
 
+    console.log('general en filtros',filter)
+
     const [places, setPlaces] = useState([]);
     const propertyTypes = [
         {value: 'apartamento', label: 'Apartamento'},
@@ -77,8 +79,8 @@ const FilterForm = ({ onFilter }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('filter:', filter)
         onFilter(filter);
+        console.log('filter justo despues del submit',filter)
     };
     
    

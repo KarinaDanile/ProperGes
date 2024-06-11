@@ -243,3 +243,32 @@ input[type="checkbox"]:hover {
 option{
   @apply bg-blue-500
 }
+
+tool-tip {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+
+  box-shadow: 0 0 2px #6e6e6e;
+  padding: .3rem 1rem;
+  font-size: .8rem;
+  border-radius: 8px;
+
+  top: -125%;
+  left: -100%;
+
+  white-space: nowrap;
+  color: #6e6e6e;
+  background-color: white;
+
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+:has(> tool-tip) {
+  position: relative;
+}
+:has(> tool-tip):hover tool-tip {
+  opacity: 1;
+}

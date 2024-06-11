@@ -135,6 +135,9 @@ export default function Visits() {
                                                                         openConfirmModal(visit.visit_id, 'realizada');
                                                                     }}
                                                                 ><GrStatusGood />
+                                                                <tool-tip role="tooltip">
+                                                                    Confirmar visita
+                                                                </tool-tip>
                                                                 </button>
                                                                 <button
                                                                     className="p-2 text-xl text-red-800 border border-transparent hover:border-gray-400 rounded-md hover:shadow-md"
@@ -142,16 +145,22 @@ export default function Visits() {
                                                                         openConfirmModal(visit.visit_id, 'cancelada');
                                                                     }}
                                                                 ><MdOutlineCancel />
+                                                                    <tool-tip role="tooltip">
+                                                                        Cancelar visita
+                                                                    </tool-tip>
                                                                 </button>
                                                             </>
                                                         )}
                                                          <button
-                                                            className="text-blue-900 text-lg border border-transparent hover:border-gray-400 border-blue-900 p-2 rounded-md hover:shadow-md"
+                                                            className="text-blue-900 text-xl border border-transparent hover:border-gray-400  p-2 rounded-md hover:shadow-md"
                                                             onClick={() => {
                                                                 setVisitToEdit(visit);
                                                                 setShowCreateModal(true);
                                                             }}
                                                         ><FaRegEdit />
+                                                            <tool-tip role="tooltip">
+                                                                Editar visita
+                                                            </tool-tip>
                                                         </button>
                                                     </div>
                                                 </td>
