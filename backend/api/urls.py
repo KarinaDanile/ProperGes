@@ -44,5 +44,7 @@ urlpatterns = [
     path('offers/', views.OfferListCreate.as_view(), name='offer_list'),
     path('offers/<uuid:pk>/', views.OfferDetailView.as_view(), name='offer_detail'),
     
+    
+    path('ping/', views.Ping.as_view(), name='ping'),
     #path('verify-email/<int:id>/', views.verify_email, name='verify_email')
 ] 
