@@ -32,8 +32,8 @@ export default function LoginForm({route, method}) {
             const {data} = await api.post(route, formData);
 
             if (method === 'login') {
-                Cookies.set('access_token', data.access_token, { sameSite: 'none'});
-                Cookies.set('refresh_token', data.refresh_token, { sameSite: 'none' });
+                Cookies.set('access_token', data.access_token, { sameSite: 'lax'});
+                Cookies.set('refresh_token', data.refresh_token, { sameSite: 'lax' });
                 setUser(data.user)
                 const userData = {'is_admin': data.is_admin, 'is_active': data.is_active}
                 localStorage.setItem('userData', JSON.stringify(userData));
