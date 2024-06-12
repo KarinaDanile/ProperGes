@@ -94,11 +94,12 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'https://properges-frontend.onrender.com',
+    'https://properges.onrender.com',
 ]
 
 #CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='*', cast=lambda v: [s.strip() for s in v.split(',')])
 
-FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+FRONTEND_URL = config('FRONTEND_URL')
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -125,7 +126,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL', default=f'sqlite:///{BASE_DIR}/db.sqlite3'))
+    'default': dj_database_url.parse(config('DATABASE_URL'))
         
     #{
         #'ENGINE': 'django.db.backends.sqlite3',
