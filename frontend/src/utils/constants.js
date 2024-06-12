@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-export const baseURL = "http://localhost:8000/api"
+export const baseURL = import.meta.env.VITE_BASE_URL;
 
 export const access_token = Cookies.get('access_token');
 export const refresh_token = Cookies.get('refresh_token');
