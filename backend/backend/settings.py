@@ -93,6 +93,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000',
+    'https://properges-frontend.onrender.com',
 ]
 
 #CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='*', cast=lambda v: [s.strip() for s in v.split(',')])
