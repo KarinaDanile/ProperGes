@@ -41,7 +41,7 @@ export function Navigation() {
             <div className="links">
               <NavLink 
                 className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
-                to="/">Home</NavLink>
+                to="/">Inicio</NavLink>
               <NavLink 
                 className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
                 to="/properties">Propiedades</NavLink>
@@ -62,10 +62,10 @@ export function Navigation() {
         )}
         { sidebarOpen && (
           <div ref={sidebarRef} className="userSettings">
-            <NavLink to="/settings">Configuración</NavLink>
+            
             <NavLink to="/users">Usuarios</NavLink>
-            <NavLink to="/invite">Invite</NavLink>
-            <NavLink to="/register">Register</NavLink>
+            <NavLink to="/invite">Invitación</NavLink>
+            <NavLink to="/register">Registro</NavLink>
             <NavLink className="border-t" to="/logout">Cerrar sesión</NavLink>
           </div>
         )}

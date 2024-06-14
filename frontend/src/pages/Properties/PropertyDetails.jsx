@@ -12,6 +12,8 @@ import EditProperty from "./Components/EditProperty";
 import { getClient, getProperty, deleteProperty } from "../../utils/api";
 import Spinner from "../../components/Spinner";
 import { capitalize, formatDateString } from "../../utils/property_utils";
+import { FaRegEdit } from "react-icons/fa";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 export default function PropertyDetails() {
     const navigate = useNavigate();
@@ -47,8 +49,7 @@ export default function PropertyDetails() {
             default:
                 return 'text-red-500';
         }
-    
-    }
+    };
 
     useEffect(() => {
         getProperty(id)
@@ -71,7 +72,7 @@ export default function PropertyDetails() {
 
     }, [id]);
 
-
+    console.log('owner',owner)
     
     return (
         <>
@@ -87,17 +88,22 @@ export default function PropertyDetails() {
 
                     <div className='flex flex-col items-center justify-center'>
                         <div className="flex w-full h-24 bg-gray-100 px-16 xl:px-60 gap-10 items-center justify-between ">
-                            <button className="btn-edit" onClick={() => navigate('/properties/')}>Volver</button>
-                            <div className="flex bg-blue-100">
+                            <button 
+                                className="btn-edit border border-gray-300 rounded p-2 h-10 bg-white hover:shadow" 
+                                onClick={() => navigate('/properties/')}
+                            >
+                                Volver
+                            </button>
+                            <div className="flex  gap-3">
                                 <button 
                                     onClick={handleEditProperty}
-                                    className="btn-edit">
-                                    Editar
+                                    className="flex items-center gap-1 border rounded-md hover:shadow bg-white p-2 border-gray-300">
+                                    <FaRegEdit /> Editar
                                 </button>
                                 <button 
                                     onClick={handleDeteleProperty}
-                                    className="btn-delete">
-                                    Eliminar
+                                    className="flex items-center gap-1 border rounded-md hover:shadow bg-white p-2 border-gray-300">
+                                    <RiDeleteBinLine /> Eliminar
                                 </button>
                             </div>
                             
@@ -119,7 +125,7 @@ export default function PropertyDetails() {
                                         <p>Propiedad Vendida</p>
                                     </div>
                                 }
-                                <div className="flex flex-col flex-wrap bg-slate-50 align-center border rounded-2xl "
+                                <div className="flex flex-col flex-wrap bg-white align-center border rounded-2xl "
                                    style={{minWidth:"60%", maxWidth:"800px", height:"auto"}}
                                 >
                                     <div className="images flex w-full justify-center border border-slate-100 p-6 rounded-t-2xl">
@@ -147,23 +153,23 @@ export default function PropertyDetails() {
                                         </div>
                                         
                                     </div>
-                                    <div className="basic-info p-4 py-3 px-10 flex flex-row gap-16">
-                                        <div className="flex items-center gap-3">
+                                    <div className="basic-info p-4 py-3 px-10 flex flex-row gap-5">
+                                        <div className="flex border p-5  bg-white/50 rounded-md items-center gap-3">
                                             <IoBed/>{property.beds} 
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex border p-5 bg-white/50  rounded-md items-center gap-3">
                                             <LiaToiletSolid/>{property.baths}
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex border p-5  bg-white/50  rounded-md items-center gap-3">
                                             <TfiRulerAlt2/>{property.sqft + 'm²'} 
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex border p-5  bg-white/50  rounded-md items-center gap-3">
                                             <LiaEuroSignSolid />
                                             {property.is_negotiable ? 'Negociable' : 'No negociable'}
                                         </div>
                                     </div>
 
-                                    <div className="description px-10 py-5">
+                                    <div className="description px-10 py-5 pb-10">
                                         {property.description}
                                     </div>
                                     <div className="px-10 py-5 border-t ">
@@ -177,7 +183,7 @@ export default function PropertyDetails() {
                                     
                                 >
                                     <div 
-                                        className=" p-5 border border-gray-200 w-full rounded-2xl" 
+                                        className=" p-5 border bg-white border-gray-200 w-full rounded-2xl" 
                                         
                                     >
                                         <h2
@@ -188,7 +194,7 @@ export default function PropertyDetails() {
                                         >
                                             <p 
                                                 className="font-normal cursor-pointer text-blue-500 hover:text-blue-700"
-                                                onClick={() => navigate(`/clients/${owner.id}`)}
+                                                onClick={() => navigate(`/clients/${owner.client_id}`)}
                                             >{owner && owner.name}</p>
                                             <p>Datos de contacto:</p>
                                             <p>{owner && owner.email}</p>

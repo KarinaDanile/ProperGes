@@ -12,21 +12,34 @@ export default function PropertyMap({lat, long}) {
         zoom: 14
     });
 
+    // onLoad prop not working so no loading spinner
+    const [loading, setLoading] = useState(true);
+    const handleMapLoad = () => {
+        setLoading(false);
+    };
+    const handleMapLoading = () => {
+        setLoading(true);
+    };
+
     return(
         <div style={{ width:"100%", height:"100%"}}>
-            <ReactMapGl
-                {...viewport}
-                width="100%"
-                height="100%"
-                mapboxAccessToken={TOKEN}
-                onViewportChange={setViewport}
-                transitionDuration={300}
-                mapStyle={"mapbox://styles/mapbox/streets-v11"}
-            >
-                <Marker latitude={lat} longitude={long}>
-                    <div className="text-2xl text-violet-800"><FaMapMarkerAlt /></div>
-                </Marker>
-            </ReactMapGl>
+            
+                <ReactMapGl
+                    {...viewport}
+                    width="100%"
+                    height="100%"
+                    mapboxAccessToken={TOKEN}
+                    onViewportChange={setViewport}
+                    
+                    
+                    transitionDuration={300}
+                    mapStyle={"mapbox://styles/mapbox/streets-v11"}
+                >
+                    <Marker latitude={lat} longitude={long}>
+                        <div className="text-2xl text-violet-800"><FaMapMarkerAlt /></div>
+                    </Marker>
+                </ReactMapGl>
+            
         </div>
     )
 

@@ -13,6 +13,20 @@ html{
   @apply bg-slate-50;
 }
 
+h1{
+  @apply font-bold text-2xl cursor-default;
+}
+input{
+  @apply h-10 border border-gray-300 rounded-md p-2 bg-white  focus:outline-none;
+}
+.my-input:focus{
+  outline: 1px solid #4299e1;
+  outline-offset: -0.5px;
+  
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ###################### Navigation and link styles ################### */
 a{
   margin: 0;
   padding: 0;
@@ -36,6 +50,8 @@ nav h1{
   @apply flex gap-10 items-center;
 }
 
+
+/* ############################## Form styles ########################## */
 .formWrapper {
   @apply  z-20  flex justify-center pt-12;
   min-width: 338px;
@@ -67,6 +83,8 @@ form{
   min-width: 150px;
   max-width:200px;
 }
+
+/* ########################## Table styles ########################## */
 .tableWrapper{
   @apply overflow-x-auto mx-16 xl:mx-40;
 }
@@ -98,6 +116,49 @@ form{
     @apply text-center text-base font-light p-4;
   }
 }
+
+.my-table2{
+  @apply min-w-full mt-6;
+
+  th {
+    @apply bg-gray-600 text-center text-lg font-semibold text-white p-3;
+  }
+  th div{
+    @apply flex justify-center items-center gap-1;
+  }
+
+  th:first-child {
+    @apply rounded-tl-lg;
+  }
+
+  th:last-child {
+    @apply rounded-tr-lg;
+  }
+
+  tr {
+    @apply border-b-2 text-center border-gray-300;
+  }
+
+  tr:nth-child(even) {
+    @apply bg-gray-100;
+  }
+
+  tr.highlight {
+    @apply bg-yellow-100;
+  }
+
+  tr:hover {
+    @apply bg-gray-200;
+  }
+
+  td {
+    @apply text-center text-base font-light p-4;
+  }
+}
+
+
+
+/* ################### To truncate long text in table ################### */
 /*
 .truncated-text{
   display: -webkit-box;
@@ -120,6 +181,8 @@ form{
   max-width: 150px;
 }
 
+
+/* ########################## General button styles ####################### */
 button:disabled{
   @apply text-gray-700 border-gray-300;
   pointer-events: none;
@@ -146,7 +209,7 @@ button:disabled{
  
 }
 
-
+/* ###################### User navigation sidebar styles ################ */
 .userSettings{
   @apply absolute flex flex-col bg-white rounded-md shadow-md ;
   right: 1.4rem;
@@ -165,30 +228,17 @@ button:disabled{
 
 .link{
   @apply text-xl relative block after:block after:content-[''] after:relative after:h-[1px] after:bg-black after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center;
-
 }
 
 
-h1{
-  @apply font-bold text-2xl cursor-default;
-}
 
 
-input{
-  @apply h-10 border border-gray-300 rounded-md p-2 bg-white  focus:outline-none;
-}
-.my-input:focus{
-  outline: 1px solid #4299e1;
-  outline-offset: -0.5px;
-  
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
+/* ###################  Image carousel direction arrows style ################## */
 .slick-prev:before, .slick-next:before{
   color: rgb(150, 150, 150) !important;
 }
 
-/*  Para quitar flechas de inputs tipo number */
+/* ##################### To remove arrows from number inputs ################### */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -198,7 +248,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/*  Estilo de checkbox */
+/* ######################  Checkbox Style ######################  */
 input[type="checkbox"]{
   appearance: none ;
   background-color: #fff;
@@ -235,15 +285,15 @@ input[type="checkbox"]:hover {
   outline-offset: max(2px, 0.15em);
 }
 
+
+/* ################ FullCalendar daygrid event style ################## */
 .fc .fc-daygrid-event {
   text-overflow: ellipsis;
 }
 
 
-option{
-  @apply bg-blue-500
-}
 
+/* ###################### tool-tip in visits list ##################### */
 tool-tip {
   position: absolute;
   z-index: 1;
@@ -271,4 +321,17 @@ tool-tip {
 }
 :has(> tool-tip):hover tool-tip {
   opacity: 1;
+}
+
+
+
+/* ############### Hover Zoom on property grid view ################ */
+.hover-zoom {
+  border-radius: 4px;
+  transition: transform 0.5s ease-in-out;
+}
+
+.hover-zoom:hover {
+  transform: scale(1.1) translateY(-6px);
+  
 }

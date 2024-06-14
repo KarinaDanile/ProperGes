@@ -21,7 +21,7 @@ from .serializers import (
     )
 from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import PropertyFilter
+from .filters import PropertyFilter, ClientFilter
 from .pagination import CustomPagination
 
 import uuid
@@ -281,6 +281,12 @@ class ClientListView(generics.ListCreateAPIView):
     queryset = Client.objects.all().order_by('-created')
     serializer_class = ClientSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = ClientFilter
+    search_fields = ['name', 'email', 'phone']
+    ordering_fields = ['name', 'email', 'phone', 'client_type', 'is_active', 'created']
+    ordering = ['-created']
+    pagination_class = CustomPagination
     
     def perform_create(self, serializer):
         if serializer.is_valid():
@@ -312,7 +318,35 @@ class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def perform_destroy(self, instance):
         instance.delete()
-
+  
+class ClientPropertiesView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk):
+        try:
+            client = Client.objects.get(client_id=pk)
+        except Client.doesNotExist:
+            return Response(data={"Este cliente no existe"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if client.client_type not in ['vendedor', 'ambos']:
+            return Response(data={"Este cliente no tiene propiedades"}, status=status.HTTP_404_NOT_FOUND)
+        
+        properties = client.properties.all()
+        serializer = PropertySerializer(properties, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        
+class ClientVisitsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk):
+        try:
+            client = Client.objects.get(client_id=pk)
+        except Client.doesNotExist:
+            return Response(data={"Este cliente no existe"}, status=status.HTTP_404_NOT_FOUND)
+        
+        visits = client.client_visits.all().order_by('-start')
+        serializer = VisitSerializer(visits, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 ###########################################################
@@ -321,7 +355,7 @@ class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class VisitListCreate(generics.ListCreateAPIView):
-    queryset = Visit.objects.all()
+    queryset = Visit.objects.all().order_by('-start')
     serializer_class = VisitSerializer
     permission_classes = [IsAuthenticated]
     

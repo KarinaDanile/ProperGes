@@ -64,6 +64,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         if(!visitToEdit){
             // update dateTime format for DB
@@ -295,6 +296,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
 
                             <button 
                                 className="btn-save"
+                                disabled={loading}
                                 type="submit"
                             >Guardar
                             </button>

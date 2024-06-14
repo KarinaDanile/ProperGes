@@ -44,6 +44,7 @@ export default function Visits() {
     };
 
     const getVisits = async () => {
+        setLoading(true);
         try {
             const res = await api.get('/visits/');
             setVisits(res.data);
@@ -95,7 +96,7 @@ export default function Visits() {
                             <div className="tableWrapper"
                                 
                             >
-                                <table className="my-table">
+                                <table className="my-table2">
                                     <thead>
                                         <tr>
                                             <th>Fecha y hora</th>

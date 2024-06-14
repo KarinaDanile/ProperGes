@@ -1,6 +1,6 @@
 
 from django_filters import rest_framework as filters
-from .models import Property
+from .models import Property, Client
 
 class PropertyFilter(filters.FilterSet):
     place = filters.CharFilter(field_name='place', lookup_expr='icontains')
@@ -14,3 +14,12 @@ class PropertyFilter(filters.FilterSet):
     class Meta:
         model = Property
         fields = ['place', 'property_type', 'beds', 'baths', 'availability', 'price_min', 'price_max']
+        
+        
+class ClientFilter(filters.FilterSet):
+    client_type = filters.CharFilter(field_name='client_type', lookup_expr='icontains')
+    is_active = filters.BooleanFilter(field_name='is_active')
+    
+    class Meta:
+        model = Client
+        fields = ['client_type', 'is_active']

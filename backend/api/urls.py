@@ -35,6 +35,9 @@ urlpatterns = [
     path('clients/', views.ClientListView.as_view(), name='client_list'),
     path('clients/<uuid:pk>/', views.ClientDetailView.as_view(), name='client_detail'),
     path('owners/', views.OwnerListView.as_view(), name='owner_list'),
+    path('clients/<uuid:pk>/properties/', views.ClientPropertiesView.as_view(), name='client_properties'),
+    path('clients/<uuid:pk>/visits/', views.ClientVisitsView.as_view(), name='client_visits'),
+    
     
     # visit endpoints
     path('visits/', views.VisitListCreate.as_view(), name='visit_list'),

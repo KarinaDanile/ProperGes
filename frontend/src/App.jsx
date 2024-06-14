@@ -16,6 +16,7 @@ import ListClients from './pages/Clients/ListClients';
 import PropertyDetails from './pages/Properties/PropertyDetails';
 import Calendar from './pages/Calendar/Calendar';
 import Visits from './pages/Visits/Visits';
+import ClientDetails from './pages/Clients/ClientDetails';
 
 const App = () => {
 
@@ -61,6 +62,14 @@ const App = () => {
                       </ProtectedRoute>
                     } 
                   />
+                  <Route path='/clients/:id/'
+                    element={
+                      <ProtectedRoute>
+                        <ClientDetails />
+                      </ProtectedRoute>
+                    } 
+                  />
+
                   <Route path='/users/'
                     element={
                       <ProtectedRoute>

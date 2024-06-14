@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import api from "../../utils/api";
+import Select from "react-select";
 
 export default function AddEditClient({ handleModalClose, setShowModal, clients, clientToEdit }) {
     

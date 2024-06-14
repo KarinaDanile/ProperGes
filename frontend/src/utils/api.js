@@ -61,6 +61,23 @@ export const getClient = async (id) => {
     }
 }
 
+export const getClientProperties = async (id) => {
+    try{
+        const res = await api.get(`/clients/${id}/properties/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getClientVisits = async (id) => {
+    try{
+        const res = await api.get(`/clients/${id}/visits/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+};
 
 export const getProperty = async (id) => {
     try{

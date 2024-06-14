@@ -26,9 +26,12 @@ export default function ListUsers() {
                 <Spinner />
             ) : (
                 <>
-                <h1>Usuarios</h1>
+                <div className="flex h-24 bg-gray-50 px-16 xl:px-40 gap-10 items-center justify-between">
+                    <h1>Usuarios</h1>
+                </div>
+                
                 <div className="tableWrapper">
-                <table border={1}>
+                <table border={1} className="my-table2">
                     <thead>
                         <tr>
                             <th>Usuario</th>

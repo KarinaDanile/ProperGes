@@ -22,7 +22,10 @@ export function Propiedades() {
     const [totalPages, setTotalPages] = useState(1);
     const [nextPage, setNextPage] = useState(null);
     const [prevPage, setPrevPage] = useState(null);
+    const [propertyCount, setPropertyCount] = useState(0);
     const pageSize = 10;
+
+    const [orderLoading, setOrderLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -35,6 +38,7 @@ export function Propiedades() {
         setSortField(field);
         setSortOrder(newSortOrder);
         setFilters(prevFilters => ({...prevFilters }));
+        setOrderLoading(true);
     };
     
     const handleViewChange = (view) => {
@@ -95,6 +99,7 @@ export function Propiedades() {
         api.get(`/properties/?${params}`)
             .then((response) => {
                 console.log(response.data)
+                setPropertyCount(response.data.count);
                 if(viewState === 'list'){
                     setPropiedades(response.data.results);
                     setTotalPages(Math.ceil(response.data.count / pageSize));
@@ -107,6 +112,7 @@ export function Propiedades() {
                 console.error(error);
             }).finally(() =>{
                 setLoading(false);
+                setOrderLoading(false);
             });
     };
 
@@ -149,9 +155,9 @@ export function Propiedades() {
     
 
     const renderSortIcon = (field) => {
-        if (sortField !== field) return <FaSort />;
-        if (sortOrder === 'asc') return <FaSortUp />;
-        return <FaSortDown />;
+        if (sortField !== field) return <div className="text-gray-400"><FaSort /></div>;
+        if (sortOrder === 'asc') return <div className="text-gray-400"><FaSortDown /></div>;
+        return <div className="text-gray-400"><FaSortUp /></div>;
     }
 
     return (
@@ -163,33 +169,33 @@ export function Propiedades() {
                 { loading ? <Spinner />
                 : (
                     <>
-                    <div className="flex h-24 bg-gray-50 px-16 xl:px-40 gap-10 items-center justify-between">
-                        <h1 className="p-5">Propiedades</h1>
-                        <button
-                            className="btn-add"
-                            onClick={() => setShowModal(true)}
-                        >Añadir propiedad
-                        </button> 
-                    </div>
-                    <div className="bg-gray-200 p-10 px-24 xl:px-60 flex flex-col-reverse">
-                                <div>
-                                    <FilterForm onFilter={handlefilterChange} />
-                                </div>
-                                <div className="flex justify-end">
-                                    <button 
-                                        className="btn-edit border border-gray-400 p-2 rounded"
-                                        onClick={() => handleViewChange('grid')}
-                                    >
-                                        Grid
-                                    </button>
-                                    <button 
-                                        className="btn-edit border border-gray-400 p-2 rounded"
-                                        onClick={() => handleViewChange('list')}    
-                                    >
-                                        List
-                                    </button>
-                                </div>
+                        <div className="flex h-24 bg-gray-50 px-16 xl:px-40 gap-10 items-center justify-between">
+                            <h1 className="p-5">Propiedades</h1>
+                            <button
+                                className="btn-add"
+                                onClick={() => setShowModal(true)}
+                            >Añadir propiedad
+                            </button> 
+                        </div>
+                        <div className="bg-gray-200 p-10 px-24 xl:px-60 flex flex-col-reverse">
+                            <div>
+                                <FilterForm onFilter={handlefilterChange} />
                             </div>
+                            <div className="flex justify-end">
+                                <button 
+                                    className="btn-edit border border-gray-400 p-2 rounded"
+                                    onClick={() => handleViewChange('grid')}
+                                >
+                                    Grid
+                                </button>
+                                <button 
+                                    className="btn-edit border border-gray-400 p-2 rounded"
+                                    onClick={() => handleViewChange('list')}    
+                                >
+                                    List
+                                </button>
+                            </div>
+                        </div>
                         { !propiedades.length 
                             ? <h1 className="text-center my-24">No hay resultados</h1> 
                             : 
@@ -205,7 +211,7 @@ export function Propiedades() {
                                             onClick={() => handleRowClick(propiedad.property_id)}
                                             className="flex flex-col w-80 gap-2 p-4 border border-gray-200 hover:bg-white rounded-lg cursor-pointer"
                                         >
-                                            <div className="w-full h-40 bg-blue-50 flex items-center justify-center"
+                                            <div className="w-full h-40 bg-blue-50 flex items-center justify-center hover-zoom"
                                                 style={ {backgroundImage: propiedad.images.length > 0 && `url(${propiedad.images[0].image})`, backgroundSize: 'cover', backgroundPosition: 'center' } }
                                             >
                                             </div>
@@ -236,104 +242,107 @@ export function Propiedades() {
                             }
 
                             { viewState === 'list' &&
-                            <>
-                                <div className="tableWrapper mt-4 ">
-                                <table border={1} className="my-table">
-                                    <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th onClick={() => handleSortChange('property_type')}>
-                                            <div>Tipo {renderSortIcon('property_type')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('price')}>
-                                            <div>Precio {renderSortIcon('price')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('place_name')}>
-                                            <div>Dirección {renderSortIcon('place_name')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('region')}>
-                                            <div>Región {renderSortIcon('region')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('beds')}>
-                                            <div>Dormitorios {renderSortIcon('beds')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('baths')}>
-                                            <div>Baños {renderSortIcon('baths')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('sqft')}>
-                                            <div>Superficie {renderSortIcon('sqft')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('availability')}>
-                                            <div>Disponibilidad {renderSortIcon('availability')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('list_date')}>
-                                            <div>Fecha Alta {renderSortIcon('list_date')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('update')}>
-                                            <div>Actualización {renderSortIcon('update')}</div>
-                                        </th>
-                                        <th onClick={() => handleSortChange('description')}>
-                                            <div>Descripción {renderSortIcon('description')}</div>
-                                        </th>
-                                        
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    { propiedades.map(propiedad => (
-                                        <tr 
-                                            key={propiedad.property_id}
-                                            onClick={() => handleRowClick(propiedad.property_id)}
-                                        >
-                                            <td className="p-2 "> 
-                                                { propiedad.images.length > 0 ? 
-                                                    <img
-                                                        className="w-20 h-auto min-w-full min-h-full" 
-                                                        src={propiedad.images[0].image} 
-                                                        alt="property" />
-                                                :
-                                                    <img 
-                                                        className="w-20 h-auto min-w-full min-h-full" 
-                                                        src="https://via.placeholder.com/70" 
-                                                        alt="placeholder" /> 
-                                                }     
-                                            </td>
-                                            <td> {capitalize(propiedad.property_type)} </td>
-                                            <td> {formatToCurrency(propiedad.price)} </td>
-                                            <td className="truncated-text"> {propiedad.place_name || "Sin definir"} </td>
+                            <div className="mb-10">
+                                <div className={`tableWrapper mt-4 ${orderLoading ? 'opacity-80 pointer-events-none' : ''}`}>
+                                    <table border={1} className="my-table2">
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th onClick={() => handleSortChange('property_type')}>
+                                                <div>Tipo {renderSortIcon('property_type')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('price')}>
+                                                <div>Precio {renderSortIcon('price')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('place_name')}>
+                                                <div>Dirección {renderSortIcon('place_name')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('region')}>
+                                                <div>Región {renderSortIcon('region')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('beds')}>
+                                                <div>Dormitorios {renderSortIcon('beds')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('baths')}>
+                                                <div>Baños {renderSortIcon('baths')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('sqft')}>
+                                                <div>Superficie {renderSortIcon('sqft')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('availability')}>
+                                                <div>Disponibilidad {renderSortIcon('availability')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('list_date')}>
+                                                <div>Fecha Alta {renderSortIcon('list_date')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('update')}>
+                                                <div>Actualización {renderSortIcon('update')}</div>
+                                            </th>
+                                            <th onClick={() => handleSortChange('description')}>
+                                                <div>Descripción {renderSortIcon('description')}</div>
+                                            </th>
                                             
-                                            <td>{propiedad.region}</td>
-
-                                            <td> {propiedad.beds} </td>
-                                            <td> {propiedad.baths} </td>
-                                            <td> {propiedad.sqft + " m²"} </td>
-                                            <td> {capitalize(propiedad.availability)} </td>
-                                            <td> {formatDateString(propiedad.list_date)} </td>
-                                            <td> {formatDateString(propiedad.update)} </td>
-                                            <td className="truncated-text"> {limitLines(propiedad.description)} </td>
                                         </tr>
-                                    ))}
-                                    </tbody>
-                                </table> 
-                                
-                            </div>
-                            <div className="pagination mt-6 flex justify-center items-center mb-20">
-                                    <button
-                                        onClick={() => handlePageChange(prevPage)}
-                                        disabled={!prevPage}
-                                        className="btn-edit border border-gray-400 p-2 rounded hover:bg-white"
-                                    >
-                                        Anterior
-                                    </button>
-                                    <span className="mx-2">{currentPage} de {totalPages}</span>
-                                    <button
-                                        onClick={() => handlePageChange(nextPage)}
-                                        disabled={!nextPage}
-                                        className="btn-edit ml-2 border border-gray-400 p-2 rounded hover:bg-white"
-                                    >
-                                        Siguiente
-                                    </button>
+                                        </thead>
+                                        <tbody>
+                                        { propiedades.map(propiedad => (
+                                            <tr 
+                                                key={propiedad.property_id}
+                                                onClick={() => handleRowClick(propiedad.property_id)}
+                                            >
+                                                <td className="p-2 "> 
+                                                    { propiedad.images.length > 0 ? 
+                                                        <img
+                                                            className="w-20 h-auto min-w-full min-h-full" 
+                                                            src={propiedad.images[0].image} 
+                                                            alt="property" />
+                                                    :
+                                                        <img 
+                                                            className="w-20 h-auto min-w-full min-h-full" 
+                                                            src="https://via.placeholder.com/70" 
+                                                            alt="placeholder" /> 
+                                                    }     
+                                                </td>
+                                                <td> {capitalize(propiedad.property_type)} </td>
+                                                <td> {formatToCurrency(propiedad.price)} </td>
+                                                <td className="truncated-text"> {propiedad.place_name || "Sin definir"} </td>
+                                                
+                                                <td>{propiedad.region}</td>
+
+                                                <td> {propiedad.beds} </td>
+                                                <td> {propiedad.baths} </td>
+                                                <td> {propiedad.sqft + " m²"} </td>
+                                                <td> {capitalize(propiedad.availability)} </td>
+                                                <td> {formatDateString(propiedad.list_date)} </td>
+                                                <td> {formatDateString(propiedad.update)} </td>
+                                                <td className="truncated-text"> {limitLines(propiedad.description)} </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table> 
+                                    
                                 </div>
-                            </>}
+                                { propertyCount > 10 &&
+                                    <div className="pagination mt-6 flex justify-center items-center mb-20">
+                                        <button
+                                            onClick={() => handlePageChange(prevPage)}
+                                            disabled={!prevPage}
+                                            className="btn-edit border border-gray-400 p-2 rounded hover:bg-white"
+                                        >
+                                            Anterior
+                                        </button>
+                                        <span className="mx-2">{currentPage} de {totalPages}</span>
+                                        <button
+                                            onClick={() => handlePageChange(nextPage)}
+                                            disabled={!nextPage}
+                                            className="btn-edit ml-2 border border-gray-400 p-2 rounded hover:bg-white"
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </div>
+                                }
+                                
+                            </div>}
 
                             
                             </div>

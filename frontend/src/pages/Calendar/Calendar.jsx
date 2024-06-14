@@ -7,7 +7,6 @@ import Spinner from "../../components/Spinner";
 import api from "../../utils/api";
 import { Tooltip } from 'react-tooltip';
 import { capitalize } from "../../utils/property_utils";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const Calendar = () => {
@@ -41,6 +40,7 @@ const Calendar = () => {
                         propertyId: visit.property_id,
                         agentId: visit.agent_id,
                         visit_state: visit.visit_state,
+                        client_id: visit.client_id
                     }
                 }));
                 console.log(events)
@@ -70,7 +70,7 @@ const Calendar = () => {
         const isWeekView = eventInfo.view.type === 'timeGridWeek';
         const anchorId = `event-anchor-${eventInfo.event.id}`
         const agentColor = agentsColors[eventInfo.event.extendedProps.agentId];
-        console.log(agentColor,'agentColor')
+        
         return (
             <>
                 <div
@@ -115,7 +115,12 @@ const Calendar = () => {
                         
                     }}
                 >
-                    <div className="p-1">
+                    <div 
+                        className="p-1 hover:cursor-pointer"
+                        onClick={() => {
+                            navigate(`/clients/${eventInfo.event.extendedProps.client_id}`)
+                        }}
+                    >
                         {eventInfo.event.extendedProps.visit_state === 'cancelada' && <span className="p-1 text-md text-red-700">✗</span>}
                         {eventInfo.event.extendedProps.visit_state === 'realizada' && <span className="p-1 text-lg text-green-700">✓</span>}
                         {eventInfo.event.title}
@@ -168,6 +173,7 @@ const Calendar = () => {
                         contentHeight={"auto"}
                         events={events}
                         eventContent={renderedEventContent}
+                        firstDay={1}
                     />
                     <div className="p-5 flex justify-center">
                             <ul className="flex flex-row gap-5">
