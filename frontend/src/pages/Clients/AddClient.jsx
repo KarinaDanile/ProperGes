@@ -40,6 +40,12 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
 
                     if (response.status === 200) {
                         handleModalClose();
+                        setClient({
+                            name: '',
+                            email: '',
+                            phone: '',
+                            client_type: 'comprador'
+                        })
                     } else {
                         toast.error('Error al editar el cliente');
                         
@@ -70,6 +76,12 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
 
                     if (response.status === 201) {
                         handleModalClose();
+                        setClient({
+                            name: '',
+                            email: '',
+                            phone: '',
+                            client_type: 'comprador'
+                        })
                     } else {
                         toast.error('Ha ocurrido un error al añadir el cliente');
 

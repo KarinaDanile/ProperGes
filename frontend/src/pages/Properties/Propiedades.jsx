@@ -6,6 +6,7 @@ import { capitalize, formatToCurrency, formatDateString, limitLines } from "../.
 import { IoBed } from "react-icons/io5";
 import { TfiRulerAlt2 } from "react-icons/tfi";
 import { LiaToiletSolid } from "react-icons/lia";
+import { CiImageOff } from "react-icons/ci";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa"; 
 import FilterForm from "./Components/FilterForm";
 import api from "../../utils/api";  
@@ -299,10 +300,9 @@ export function Propiedades() {
                                                             src={propiedad.images[0].image} 
                                                             alt="property" />
                                                     :
-                                                        <img 
-                                                            className="w-20 h-auto min-w-full min-h-full" 
-                                                            src="https://via.placeholder.com/70" 
-                                                            alt="placeholder" /> 
+                                                        <div className="w-20 h-20 bg-slate-200 flex justify-center items-center text-2xl text-gray-600 min-w-full min-h-full" >
+                                                            <CiImageOff />
+                                                        </div> 
                                                     }     
                                                 </td>
                                                 <td> {capitalize(propiedad.property_type)} </td>

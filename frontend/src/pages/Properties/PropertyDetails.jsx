@@ -6,6 +6,7 @@ import { TfiRulerAlt2 } from "react-icons/tfi";
 import { LiaToiletSolid } from "react-icons/lia";
 import { CiCircleAlert } from "react-icons/ci";
 import { LiaEuroSignSolid } from "react-icons/lia";
+import { CiImageOff } from "react-icons/ci";
 import PropertyMap from "./Components/PropertyMap";
 import { useState, useEffect } from "react";
 import EditProperty from "./Components/EditProperty";
@@ -135,7 +136,11 @@ export default function PropertyDetails() {
                                                     ? <ImageSlider images={property.images}/>
                                                     : <div className="w-full h-full" style={ {backgroundImage: `url(${property.images[0].image})`, backgroundSize: 'cover', backgroundPosition: 'center' } }></div>
                                                 
-                                                : <div className="w-full h-full bg-slate-200"></div>
+                                                : <div 
+                                                    className="w-full h-full flex justify-center items-center text-7xl text-gray-500 bg-slate-200"
+                                                    >
+                                                    <CiImageOff />  
+                                                </div>
                                             }
                                         </div>                            
                                     </div>
