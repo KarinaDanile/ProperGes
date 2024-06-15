@@ -9,8 +9,10 @@ import { LiaToiletSolid } from "react-icons/lia";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa"; 
 import FilterForm from "./Components/FilterForm";
 import api from "../../utils/api";  
+import { useToast } from "rc-toastr";
 
 export function Propiedades() {
+    const {toast} = useToast();
     const [propiedades, setPropiedades] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -47,7 +49,7 @@ export function Propiedades() {
     };
 
     const fetchProperties = async (filters, viewState) => {
-        console.log('fetching properties', filters, viewState);
+
         setLoading(true);
         try {
             let data;
@@ -62,7 +64,7 @@ export function Propiedades() {
                 setPropiedades(data);
             }
         } catch (error) {
-            console.error(error);
+            toast.error("Error al cargar propiedades");
         } finally {
             setLoading(false);
         }
@@ -79,16 +81,15 @@ export function Propiedades() {
 
             api.get(`/properties/?${params}`)
                 .then((response) => {
-                    console.log(response.data)
+
                     resolve(response.data);
                 }).catch((error) => {
-                    console.error(error);
                     reject(error)
                 });
             });
     }
     const getProperties1 = () => {
-        console.log(filters);
+
         const params = new URLSearchParams({
             ...filters,
             ...(viewState === 'list' && { page: currentPage, page_size: pageSize }), 
@@ -98,7 +99,7 @@ export function Propiedades() {
         
         api.get(`/properties/?${params}`)
             .then((response) => {
-                console.log(response.data)
+
                 setPropertyCount(response.data.count);
                 if(viewState === 'list'){
                     setPropiedades(response.data.results);
@@ -109,7 +110,7 @@ export function Propiedades() {
                     setPropiedades(response.data);
                 }
             }).catch((error) => {
-                console.error(error);
+                toast.error("Error al cargar propiedades");
             }).finally(() =>{
                 setLoading(false);
                 setOrderLoading(false);
@@ -117,7 +118,7 @@ export function Propiedades() {
     };
 
     const handlefilterChange = (filters) => {
-        console.log('setting filters', filters)
+
         setFilters(filters);
         setCurrentPage(1);
     };
@@ -136,7 +137,7 @@ export function Propiedades() {
                 setCurrentPage(pageUrl.includes('page=') ? parseInt(new URL(pageUrl).searchParams.get('page')) : 1);
             })
             .catch((error) => {
-                console.error(error);
+                toast.error("Error al cargar propiedades");
             })
             .finally(() => {
                 setLoading(false);
@@ -150,6 +151,7 @@ export function Propiedades() {
     
     useEffect(() => {   
         //fetchProperties(filters, viewState);
+        setOrderLoading(true);
         getProperties1();
     }, [filters, viewState]);
     

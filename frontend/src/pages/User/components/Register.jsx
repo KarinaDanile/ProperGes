@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import api from "../../../utils/api";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useToast } from "rc-toastr";
+import Spinner from "../../../components/Spinner";
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -10,8 +12,9 @@ export default function Register() {
         password: "",
         password2: "",
     });
-    const [error, setError] = useState(null);
+
     const [loading, setLoading] = useState(false);
+    const {toast} = useToast();
 
     const navigate = useNavigate();
     const useQuery = () => {
@@ -32,13 +35,12 @@ export default function Register() {
                             email: res.data.email,
                         });
                     } else {
-                        setError('Enlace no válido o expirado');
+                        toast.error('Enlace no válido o expirado');
                     }
                     setLoading(false);
                 })
                 .catch(error => {
-                    console.log(error);
-                    setError('Error al validar enlace');
+                    toast.error('Error al validar enlace');
                     setLoading(false);
                 });
         }
@@ -57,10 +59,7 @@ export default function Register() {
 
         // check password match
         if (formData.password !== formData.password2) {
-            setError("Passwords do not match");
-            setTimeout(() => {
-                setError(null);
-            }, 2000);
+            toast.error("Las contraseñas no coinciden");
             setLoading(false);
             return;
         } else {
@@ -68,15 +67,10 @@ export default function Register() {
             const { password2, ...finalData } = formData;
             try {
                 const {data} = await api.post(`/register/`, finalData);
-                console.log(data)
                 navigate('/login/');
                 
             } catch (error) {
-                setError(error.response.data.error)
-                console.log(error)
-                setTimeout(() => {
-                    setError(null);
-                }, 2000);
+                toast.error("Error al registrar usuario");
             } finally {
                 setLoading(false);
             }
@@ -140,14 +134,8 @@ export default function Register() {
                     className="btn-save w-fit self-center mb-3" 
                     type="submit">Guardar</button>
             </form>
-            {loading 
-            && <div
-                className="text-blue-600 border border-blue-600 border-dashed p-2 mt-2 w-1/3 mx-auto rounded-lg shadow-lg bg-white"
-                >Cargando...</div>}
-            {error 
-            && <div 
-                className="text-red-600 border border-red-600 border-dashed p-2 mt-2 w-1/3 mx-auto rounded-lg shadow-lg bg-white"
-            >{error}</div>}
+            {loading && <Spinner    />}
+            
         </>
     )
 }

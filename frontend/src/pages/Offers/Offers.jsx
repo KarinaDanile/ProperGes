@@ -6,9 +6,10 @@ import { formatToCurrency, formatDateString, capitalize } from "../../utils/prop
 import AddOffer from "./AddOffer";
 import ConfirmModal2 from "../../utils/ConfirmModal2";
 import { FaRegEdit } from "react-icons/fa";
+import { useToast } from "rc-toastr";
 
 export default function Offers() {
-
+    const {toast} = useToast();
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false);
@@ -32,7 +33,7 @@ export default function Offers() {
                 updatedOffers[updatedOfferIndex] = res.data;
                 setOffers(updatedOffers);
             } catch (error) {
-                console.error(error);
+                toast.error("Error al actualizar la oferta");
             }
         }
         setConfirmModalOpen(false);
@@ -47,7 +48,7 @@ export default function Offers() {
             setOffers(res.data);
             setLoading(false);
         } catch (error) {
-            console.error(error);
+            toast.error("Error al cargar las ofertas");
         }
     };
 
@@ -113,7 +114,7 @@ export default function Offers() {
                                                             {offer.offer_state === 'pendiente' && (
                                                                 <>
                                                                     <button 
-                                                                        className="btn-save  hover:bg-slate-50"
+                                                                        className="btn-save  bg-gray-50 hover:bg-slate-50"
                                                                         onClick={() => {
                                                                             openConfirmModal(offer.offer_id, 'aceptada');
                                                                         }}
@@ -121,7 +122,7 @@ export default function Offers() {
                                                                         Aceptar 
                                                                     </button>
                                                                     <button 
-                                                                        className="btn-cancel hover:bg-slate-50"
+                                                                        className="btn-cancel  bg-gray-50 hover:bg-slate-50"
                                                                         onClick={() => {
                                                                             openConfirmModal(offer.offer_id, 'rechazada');
                                                                         }}
@@ -129,7 +130,7 @@ export default function Offers() {
                                                                         Rechazar
                                                                     </button>
                                                                     <button 
-                                                                        className="p-2 border border-gray-300 rounded  hover:shadow-md transition duration-300 ease-in-out hover:bg-slate-50"
+                                                                        className="p-2 border  bg-gray-50 border-gray-300 rounded  hover:shadow-md transition duration-300 ease-in-out hover:bg-slate-50"
                                                                         onClick={() => {
                                                                             openConfirmModal(offer.offer_id, 'cancelada');
                                                                         }}
@@ -139,7 +140,7 @@ export default function Offers() {
                                                                     </>
                                                                 )}
                                                                 <button
-                                                                    className="text-blue-900 text-xl border border-transparent hover:border-gray-400  p-2 rounded-md hover:shadow-md"
+                                                                    className="text-blue-900 bg-gray-50  border-gray-300 hover:bg-slate-50 text-xl border  hover:border-gray-400  p-2 rounded-md hover:shadow-md"
                                                                     onClick={() => {
                                                                         setOfferToEdit(offer);
                                                                         setShowModal(true);

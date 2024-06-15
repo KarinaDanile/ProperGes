@@ -14,8 +14,10 @@ import Spinner from "../../components/Spinner";
 import { capitalize, formatDateString } from "../../utils/property_utils";
 import { FaRegEdit } from "react-icons/fa";
 import { RiDeleteBinLine } from "react-icons/ri";
+import { useToast } from "rc-toastr";
 
 export default function PropertyDetails() {
+    const {toast} = useToast();
     const navigate = useNavigate();
     const { id }  = useParams();
     const [property, setProperty] = useState(null);
@@ -38,7 +40,7 @@ export default function PropertyDetails() {
             navigate('/properties/');
         })
         .catch((error) => {
-            console.error(error);
+            toast.error("Error al eliminar la propiedad");
         })
     }
 
@@ -55,7 +57,6 @@ export default function PropertyDetails() {
         getProperty(id)
             .then((data) => {
                 setProperty(data);
-                console.log(data)
                 if(data.owner){
                     return getClient(data.owner);
                 }
@@ -64,7 +65,7 @@ export default function PropertyDetails() {
                 setOwner(ownerData);
             })
             .catch((error) => {
-                console.error(error);
+                toast.error("Error al cargar la propiedad");
             })
             .finally(() => {
                 setLoading(false);
@@ -72,7 +73,6 @@ export default function PropertyDetails() {
 
     }, [id]);
 
-    console.log('owner',owner)
     
     return (
         <>

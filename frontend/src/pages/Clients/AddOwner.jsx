@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import api from "../../utils/api";
 import { getClients } from "../../utils/api";
+import { useToast } from "rc-toastr";
 
 export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
-    
+    const { toast } = useToast();
     const [owner, setOwner] = useState({
         name : newOwner ? newOwner.name : '',
         email: '',
@@ -17,17 +18,15 @@ export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
         try  {
             getClients().then((data) => {
                 setClients(data);
-                console.log(data)
+                
             }
             ).catch((error) => {
-                console.error(error);
+                toast.error("Error al cargar los propietarios");
             })
         } catch (error) {
-            console.error(error);
+            toast.error("Error al cargar los datos");
         }
     },[]);
-
-    const [error, setError] = useState(null);
 
     const handleChange = (e) => {
         setOwner({
@@ -36,18 +35,14 @@ export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
         });
     }
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         // comprobar si hay por un correo o un telefono
         if (!owner.email && !owner.phone) {
-            setError("Debe introducir un método de contacto");
-            setTimeout(() => {
-                setError(null);
-            }, 2000);
+            toast.error("Debe introducir un método de contacto");
             return;
         } else {
-                // comprobar si el ownere ya existe con la info recuperada en el front
+                // comprobar si el owner ya existe con la info recuperada en el front
                 const ownerExists = () => {
                     if(owner.email !== "") {
                         return clients.find(c => c.email === owner.email);
@@ -58,31 +53,21 @@ export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
                     return false;
                 }
                 if (ownerExists()) {
-                    setError("Ya existe un ownere con ese correo o teléfono");
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
+                    toast.error("Ya existe un propietario con ese correo o teléfono");
                     return;
                 }
-                console.log(owner)
+                
                 try {
                     const response = await api.post('/clients/', owner );
 
                     if (response.status === 201) {
                         handleModalClose();
                     } else {
-                        setError('Ha ocurrido un error en el post');
-                        setTimeout(() => {
-                            setError(null);
-                        }, 2000);
+                        toast.error('Ha ocurrido un error al añadir al propietario');
                     }
                 } catch (error) {
-                    setError('Ha ocurrido un error al añadir el ownere');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                }
-                      
+                    toast.error('Ha ocurrido un error al añadir al propietario');
+                };    
         }
     }
 
@@ -152,9 +137,6 @@ export default function AddOwner({ handleModalClose, setShowModal, newOwner }) {
                             </button>
                         </div>
                         
-
-                        {error && <><br /> <div className="text-red-600 border border-red-600 border-dashed p-2">{error}</div></>}
-
                     </form>
                 </div>
                 

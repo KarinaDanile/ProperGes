@@ -5,9 +5,10 @@ import api from "../../utils/api";
 import Select from "react-select";
 import { formatToCurrency } from "../../utils/property_utils";
 import { NumericFormat } from 'react-number-format';
+import { useToast } from "rc-toastr";
 
 const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
-    console.log(offerToEdit)
+    const {toast} = useToast();
     const [propiedades, setPropiedades] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [clients, setClients] = useState([]);
@@ -21,7 +22,6 @@ const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
         comments: offerToEdit ? offerToEdit.comments : "",
     });
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
 
     const propertyOptions = propiedades.map((propiedad) => ({
@@ -43,29 +43,21 @@ const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
                 property: updatedPropertyId, 
                 client: updatedClientId, 
             };
-            console.log(updatedFormData);
+            
             
             // send to API
             try {
                 const response = await api.post('/offers/', updatedFormData);
-                console.log(response);
+                
                 if (response.status === 201) {
                     onOfferCreated();
                     onClose();
-                } else {
-                    setError('Ha ocurrido un error en al crear la oferta');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                }
+                } 
             } catch (error) {
-                setError('Ha ocurrido un error al añadir la oferta');
-                setTimeout(() => {
-                    setError(null);
-                }, 2000);
+                toast.error('Ha ocurrido un error al añadir la oferta');
             }
         } else {
-            console.log(formData)
+            
             const updatedPropertyId = selectedProperty ? selectedProperty.value : null;
             const updatedClientId = selectedClient ? selectedClient.value : null;
 
@@ -74,26 +66,17 @@ const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
                 property: updatedPropertyId, 
                 client: updatedClientId, 
             };
-            console.log(updatedFormData);
             
             // send edited offer to API
             try {
                 const response = await api.patch(`/offers/${offerToEdit.offer_id}/`, updatedFormData);
-                console.log(response);
+
                 if (response.status === 200) {
                     onOfferCreated();
                     onClose();
-                } else {
-                    setError('Ha ocurrido un error al guardar los cambios');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                }
+                } 
             } catch (error) {
-                setError('Ha ocurrido un error al editar la oferta');
-                setTimeout(() => {
-                    setError(null);
-                }, 2000);
+                toast.error('Ha ocurrido un error al guardar los cambios');
             }
         }
 
@@ -114,7 +97,7 @@ const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
                     }
                     setPropiedades(response.data);
                 }).catch((error) => {
-                    console.error(error);
+                    toast.error("Error al cargar las propiedades");
                 });
         }
         getProperties();
@@ -131,9 +114,9 @@ const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
                 }
             }
         }).catch((error) => {
-            console.error(error);
+            toast.error("Error al cargar los clientes");
         });
-       setTimeout(() => {
+        setTimeout(() => {
             setLoading(false);
         }, 1500);
        
@@ -235,9 +218,6 @@ const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
                             >Guardar
                             </button>
                         </div>
-                        
-
-                        {error && <><br /> <div className="text-red-600 border border-red-600 border-dashed p-2">{error}</div></>}
 
                     </form>
                 </div>

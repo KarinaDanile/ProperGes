@@ -4,18 +4,19 @@ import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { AuthContext } from '../context/UserContext';
 import Spinner from "./Spinner";
+import { useToast } from "rc-toastr";
+import svgBackground from '../assets/svgBackground.svg';
 
 
 export default function LoginForm({route, method}) {
     const {setUser} = useContext(AuthContext);
-
+    const {toast} = useToast();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState(
-        {
-            username: "",
-            password: "",
-        });
-    const [error, setError] = useState(null);
+    const [formData, setFormData] = useState({
+        username: "",
+        password: "",
+    });
+
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
@@ -43,27 +44,28 @@ export default function LoginForm({route, method}) {
             }
 
         } catch (error) {
-            if ( error.isAxiosError && error.response ) { 
-                setError(error.response.data.error)
-            } else {
-                setError(error.message)
-            }
-                
-            setTimeout(() => {
-                setError(null);
-            }, 2000);
+            toast.error("Error al iniciar sesión")
         } finally {
             setLoading(false);
         }
     };
 
+
     const name = method === "login" ? "Iniciar sesión" : "Register";
 
     return (
         <>
-            <div className="absolute mt-40 bg-gray-50 w-screen h-screen left-0 top-0 flex flex-col items-center">
+            <div 
+                className="absolute pt-40  w-screen h-screen left-0 top-0 flex flex-col items-center"
+                style={{
+                    backgroundImage: `url(${svgBackground})`,
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                }}
+            >
+                
                 <form 
-                    className="h-auto w-96  bg-white border-2 rounded-3xl p-4 flex flex-col justify-center gap-3 items-center" 
+                    className="h-auto w-96  bg-white  rounded-3xl p-4 flex flex-col justify-center gap-3 items-center shadow" 
                     onSubmit={handleSubmit}>
                     <h1 className="mt-10 mb-7">{name}</h1>
                     <input
@@ -89,7 +91,6 @@ export default function LoginForm({route, method}) {
                     <button className="mb-6 btn-add" type="submit">Acceder</button>
                 </form>
                 {loading && <Spinner />}
-                {error && <div>{error}</div>}
             </div>
         </>
     );

@@ -12,9 +12,11 @@ import ClientFilter from "./Components/ClientFilter";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { formatDateString, capitalize } from "../../utils/property_utils";
 import api from "../../utils/api"; 
+import { useToast } from "rc-toastr";
 
 
 export default function ListClients() {
+    const { toast } = useToast();
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -47,7 +49,7 @@ export default function ListClients() {
 
             api.get(`/clients/?${params}`)
             .then((response) => {
-                console.log(response.data)
+                
                 setClientCount(response.data.count);
                 setClients(response.data.results);
                 setTotalPages(Math.ceil(response.data.count / pageSize));
@@ -55,14 +57,14 @@ export default function ListClients() {
                 setPrevPage(response.data.previous);
                 
             }).catch((error) => {
-                console.error(error);
+                toast.error("Error al cargar los clientes");
             }).finally(() =>{
                 setLoading(false);
                 setOrderLoading(false);
             });
             
         } catch (error) {
-            console.error(error);
+            toast.error("Error al cargar los datos");
         } 
     };
 
@@ -80,7 +82,7 @@ export default function ListClients() {
                 setCurrentPage(pageUrl.includes('page=') ? parseInt(new URL(pageUrl).searchParams.get('page')) : 1);
             })
             .catch((error) => {
-                console.error(error);
+                toast.error("Error al cambiar de página");
             })
             .finally(() => {
                 setLoading(false);
@@ -114,7 +116,7 @@ export default function ListClients() {
         deleteClient(client.client_id).then(() => {
             getActiveClients();
         }).catch((error) => {
-            console.error(error);
+            toast.error("Error al eliminar cliente");
         });
     }
 
@@ -123,12 +125,12 @@ export default function ListClients() {
         updateClientState(client.client_id, { is_active: !client.is_active }).then(() => {
             getActiveClients();
         }).catch((error) => {
-            console.error(error);
+            toast.error("Error al cambiar estado de cliente");
         });
     }
 
     const handleFilterChange = (filters) => {
-        console.log('client filters: ', filters);
+        
         setFilters(filters);
         setCurrentPage(1);
     };

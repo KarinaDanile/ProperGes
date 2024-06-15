@@ -34,11 +34,6 @@ export function Navigation() {
     setsidebarOpen(!sidebarOpen);
   }
 
-  /*
-      <NavLink to="/invite">Invite</NavLink>
-      <NavLink to="/users">Usuarios</NavLink>
-      <NavLink to="/register">Register</NavLink>
-  */
 
   return (
     <>

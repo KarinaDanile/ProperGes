@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { getCities } from "../../../utils/api";
 import { NumericFormat } from 'react-number-format';
 import Select from 'react-select';
+import { useToast } from "rc-toastr";
 
 const FilterForm = ({ onFilter }) => {
+    const { toast } = useToast();
     const [filter, setFilter] = useState({
         place : '',
         property_type: '',
@@ -15,7 +17,6 @@ const FilterForm = ({ onFilter }) => {
         search: ''
     });
 
-    console.log('general en filtros',filter)
 
     const [places, setPlaces] = useState([]);
     const propertyTypes = [
@@ -54,10 +55,9 @@ const FilterForm = ({ onFilter }) => {
     useEffect(() => {   
         getCities()
             .then((data) => {
-                console.log(data)
                 setPlaces(data);
             }).catch((error) => {
-                console.error(error);
+                toast.error("Error al cargar las localidades");
             });
 
     }, []);
@@ -80,7 +80,7 @@ const FilterForm = ({ onFilter }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         onFilter(filter);
-        console.log('filter justo despues del submit',filter)
+
     };
     
    

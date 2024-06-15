@@ -8,12 +8,12 @@ export default function AutoCompleteInput({setFormData, formData}) {
     const handleChange = (e) => {
         setQuery(e.target.value);
         handleInputChange(e.target.value);
-    } 
+    };
     
     const handleInputChange = async (query) => {
         const suggestions = await getPlaces(query);
         setSuggestions(suggestions);
-    }
+    };
     
     const handleSuggestionClick = (suggestion) => {
         const streetAndNumber = suggestion.text.split(",")[0];

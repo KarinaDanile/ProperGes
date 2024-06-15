@@ -34,6 +34,24 @@ export const getUsers = async () => {
     }
 }
 
+export const updateUser = async (userId, data) => {
+    try {
+        const res = await api.patch(`/agents/${userId}/`, data);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const deleteUser = async (userId) => {
+    try {
+        const res = await api.delete(`/agents/${userId}/delete/`);
+        return res.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const getCities = async () => {
     try {
         const res = await api.get('/places/');

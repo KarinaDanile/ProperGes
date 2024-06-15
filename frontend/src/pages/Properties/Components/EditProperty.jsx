@@ -9,22 +9,19 @@ import api from "../../../utils/api";
 import { useDropzone } from "react-dropzone";
 import Spinner from "../../../components/Spinner";
 import { capitalize } from "../../../utils/property_utils";
+import { useToast } from "rc-toastr";
 
 const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
     
-    
+    const { toast } = useToast();
     const [ formData, setFormData ] = useState(property);
-    console.log("fromdata",formData)
 
     const images = [...formData.images];
     const [ existingImages, setExistingImages ] = useState(images)
-    console.log("existing images",existingImages)
+
     const [ imagesToDelete, setImagesToDelete ] = useState([]);
-    console.log("images to delete",imagesToDelete)
 
     const [ loading, setLoading ] = useState(true);
-
-    const [ error, setError ] = useState(null);
     const [ owners, setOwners ] = useState([]);
     const [ showOwnerCreate, setShowOwnerCreate ] = useState(false);
     const [ newOwner, setNewOwner ] = useState({
@@ -46,7 +43,7 @@ const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
                 setSelectedClient(null);
             }
         }).catch((error) => {
-            console.error("Error loading owners", error);
+            toast.error("Error al cargar los propietarios");
         }).finally(() => {
             setLoading(false);
         });
@@ -133,24 +130,21 @@ const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
                     formDataFinal.append(key, dataToSend[key])
                 };
             });
-            console.log('Updating property:', formDataFinal);
             
             try{
                 const response = await api.put(`/properties/${property.property_id}/`, formDataFinal);
-                console.log(response);
+
                 if (response.status === 200) {  
-                    console.log("Property updated successfully");
                     updateProperty(response.data);
                 }
                 setShowEditForm(false);
             } catch (error){
-                console.error("Error updating property", error);
-                setError("Error actualizando la propiedad");
+                toast.error("Error actualizando la propiedad");
             }
         
         
         } catch (error) {
-            console.error("Error obteniendo las coordenadas",error);
+            toast.error("Error obteniendo las coordenadas");
         }
     }
 
@@ -167,16 +161,13 @@ const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
         setShowOwnerCreate(false);
         getOwners().then((data) => {
             setOwners(data);
-            console.log(data)
+
         }).catch((error) => {
-            console.error(error);
-        }).finally(() => {
-            console.log('Owners loaded');
-        });
+            toast.error("Error al cargar los propietarios");
+        })
     }
 
     const onDrop = useCallback(acceptedFiles => {
-        console.log('accepted files',acceptedFiles);
         
         if(acceptedFiles?.length){
             const uniqueFiles = acceptedFiles.filter(file => !files.some(f => f.name === file.name));
@@ -483,8 +474,6 @@ const EditProperty = ({ property, setShowEditForm, updateProperty}) => {
                                         onClick={() => setShowEditForm(false)}
                                     >Cerrar</button>
                                 </div>
-
-                                {error && <><br /> <div className="text-red-600 border border-red-600 border-dashed p-2">{error}</div></>}
 
 
                             </form>

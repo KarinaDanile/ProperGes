@@ -5,10 +5,11 @@ import axios from 'axios';
 import { AuthContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { baseURL } from '../../utils/constants';
+import { useToast } from 'rc-toastr';
 
 const Logout = () => {
     const navigate = useNavigate();
-    
+    const {toast} = useToast();
     const {setUser} = useContext(AuthContext);
 
     const logout = async () => {
@@ -24,7 +25,7 @@ const Logout = () => {
             const {data} = await 
             axios.post(`${baseURL}/logout/`, refresh_token);
             if (data.error) {
-                console.log(data.error)
+                toast.error("Error cerrando sesión")
                 return;
             }
             localStorage.clear();
@@ -43,9 +44,7 @@ const Logout = () => {
     }, []);
     
     return(
-        <div>
-            <h1>Logging out...</h1>
-        </div>
+        <div></div>
     )
     
 

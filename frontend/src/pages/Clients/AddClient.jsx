@@ -2,17 +2,16 @@ import { useState } from "react";
 import axios from "axios";
 import api from "../../utils/api";
 import Select from "react-select";
+import { useToast } from "rc-toastr";
 
 export default function AddEditClient({ handleModalClose, setShowModal, clients, clientToEdit }) {
-    
+    const { toast } = useToast();
     const [client, setClient] = useState({
         name: clientToEdit ? clientToEdit.name :'',
         email: clientToEdit ? clientToEdit.email :'',
         phone: clientToEdit ? clientToEdit.phone :'',
         client_type: clientToEdit ? clientToEdit.client_type : 'comprador'
     });
-
-    const [error, setError] = useState(null);
 
     const handleChange = (e) => {
         setClient({
@@ -25,10 +24,8 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
         e.preventDefault();
         // comprobar si hay por un correo o un telefono
         if (!client.email && !client.phone) {
-            setError("Debe introducir un método de contacto");
-            setTimeout(() => {
-                setError(null);
-            }, 2000);
+            toast.error("Debe introducir un método de contacto");
+            
             return;
         } else {
             if(clientToEdit) {
@@ -44,16 +41,12 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                     if (response.status === 200) {
                         handleModalClose();
                     } else {
-                        setError('Ha ocurrido un error en el put');
-                        setTimeout(() => {
-                            setError(null);
-                        }, 2000);
+                        toast.error('Error al editar el cliente');
+                        
                     }
                 } catch (error) {
-                    setError('Ha ocurrido un error al editar el cliente');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
+                    toast.error('Error al editar el cliente');
+                    
                 }
 
             } else {
@@ -68,29 +61,22 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                     return false;
                 }
                 if (clientExists()) {
-                    setError("Ya existe un cliente con ese correo o teléfono");
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
+                    toast.error("Ya existe un cliente con ese correo o teléfono");
                     return;
                 }
-                console.log(client)
+               
                 try {
                     const response = await api.post('/clients/', client );
 
                     if (response.status === 201) {
                         handleModalClose();
                     } else {
-                        setError('Ha ocurrido un error en el post');
-                        setTimeout(() => {
-                            setError(null);
-                        }, 2000);
+                        toast.error('Ha ocurrido un error al añadir el cliente');
+
                     }
                 } catch (error) {
-                    setError('Ha ocurrido un error al añadir el cliente');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
+                    toast.error('Ha ocurrido un error al añadir el cliente');
+
                 }
             }            
         }
@@ -162,16 +148,9 @@ export default function AddEditClient({ handleModalClose, setShowModal, clients,
                             </button>
                         </div>
                         
-
-                        {error && <><br /> <div className="text-red-600 border border-red-600 border-dashed p-2">{error}</div></>}
-
                     </form>
                 </div>
-                
             </div>
-
-
-            
         </>
     )
 }

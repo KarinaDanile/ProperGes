@@ -2,7 +2,6 @@
 import Slider from "react-slick";
 
 export default function ImageSlider({ images }) {
-    console.log("images",images)
 
     const settings = {
         dots: true,

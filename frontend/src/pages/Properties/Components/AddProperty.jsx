@@ -7,9 +7,11 @@ import { getOwners } from "../../../utils/api";
 import AddOwner from "../../Clients/AddOwner";
 import api from "../../../utils/api";
 import { useDropzone } from "react-dropzone";
+import { useToast } from "rc-toastr";
 
 
 export default function AddProperty({setShowModal, updateProperties}) {
+    const { toast } = useToast();
     const [ conApi, setConApi ] = useState(true);
     const [formData, setFormData] = useState({
         property_type: "apartamento",
@@ -31,7 +33,7 @@ export default function AddProperty({setShowModal, updateProperties}) {
         description: "",
         images: [],
     });
-    const [ error, setError ] = useState(null);
+
     const [ owners, setOwners ] = useState([]);
     const [ value, setValue ] = useState(null); 
     const [ showOwnerCreate, setShowOwnerCreate ] = useState(false);
@@ -46,12 +48,10 @@ export default function AddProperty({setShowModal, updateProperties}) {
     useEffect(() => {
         getOwners().then((data) => {
             setOwners(data);
-            console.log(data)
+
         }).catch((error) => {
-            console.error(error);
-        }).finally(() => {
-            console.log('Owners loaded');
-        });
+            toast.error("Error al cargar los propietarios");
+        })
     }, []);
 
 
@@ -124,28 +124,20 @@ export default function AddProperty({setShowModal, updateProperties}) {
                 formDataFinal.append(key, dataToSend[key])
             };
         });
-        console.log('Adding property:', formDataFinal);
+
         try {
             const response = await api.post('/properties/', formDataFinal, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
             });
-            console.log(response)
+
             if (response.status === 201) {
                 setShowModal(false);
                 updateProperties({});
-            } else {
-                setError('Ha ocurrido un error en el post');
-                setTimeout(() => {
-                    setError(null);
-                }, 2000);
-            }
+            } 
         } catch (error) {
-            setError('Ha ocurrido un error al añadir la propiedad');
-            setTimeout(() => {
-                setError(null);
-            }, 2000);
+            toast.error('Ha ocurrido un error al añadir la propiedad');
         }
     }
 
@@ -193,16 +185,13 @@ export default function AddProperty({setShowModal, updateProperties}) {
         setShowOwnerCreate(false);
         getOwners().then((data) => {
             setOwners(data);
-            console.log(data)
+
         }).catch((error) => {
-            console.error(error);
-        }).finally(() => {
-            console.log('Owners loaded');
-        });
+            toast.error("Error al cargar los propietarios");
+        })
     }
 
     const onDrop = useCallback(acceptedFiles => {
-        console.log('accepted files',acceptedFiles);
         
         if(acceptedFiles?.length){
             const uniqueFiles = acceptedFiles.filter(file => !files.some(f => f.name === file.name));
@@ -489,9 +478,6 @@ export default function AddProperty({setShowModal, updateProperties}) {
                                 onClick={() => setShowModal(false)}
                             >Cerrar</button>
                         </div>
-
-                        {error && <><br /> <div className="text-red-600 border border-red-600 border-dashed p-2">{error}</div></>}
-
 
                     </form>
 

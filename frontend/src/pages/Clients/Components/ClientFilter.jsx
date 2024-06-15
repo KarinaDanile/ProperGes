@@ -41,7 +41,7 @@ const ClientFilter = ({ onFilter }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         onFilter(filter);
-        console.log('filter justo despues del submit',filter)
+        
     };
 
     

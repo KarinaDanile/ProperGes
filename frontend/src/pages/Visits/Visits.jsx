@@ -9,9 +9,10 @@ import { MdOutlineCancel } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import { GrStatusGood } from "react-icons/gr";
 import AddEditVisit from "./AddEditVisit";
+import { useToast } from "rc-toastr";
 
 export default function Visits() {
-
+    const { toast } = useToast();
     const [visits, setVisits] = useState([]);
     const [loading, setLoading] = useState(true)
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
@@ -35,7 +36,7 @@ export default function Visits() {
                 updatedVisits[updatedVistiIndex] = res.data;
                 setVisits(updatedVisits);
             } catch (error) {
-                console.error(error);
+                toast.error("Ha ocurrido un error al actualizar la visita");
             }
         }
         setConfirmModalOpen(false);
@@ -50,7 +51,7 @@ export default function Visits() {
             setVisits(res.data);
             setLoading(false);
         } catch (error) {
-            console.error(error);
+            toast.error("Error al cargar las visitas");
         }
     }
     useEffect(() => {
@@ -93,9 +94,7 @@ export default function Visits() {
                                     }}
                                 >  Añadir visita</button>
                             </div>
-                            <div className="tableWrapper"
-                                
-                            >
+                            <div className="tableWrapper mb-10">
                                 <table className="my-table2">
                                     <thead>
                                         <tr>
@@ -120,7 +119,11 @@ export default function Visits() {
                                                         {visit.property_address}
                                                     </Link>
                                                 </td>
-                                                <td >{visit.client_iden}</td>
+                                                <td>
+                                                    <Link to={`/clients/${visit.client_id}`}>
+                                                        {visit.client_iden}
+                                                    </Link>
+                                                </td>
                                                 <td>{capitalize(visit.agent_name)}</td>
                                                 <td>{capitalize(visit.visit_state)}</td>
                                                 <td>{visit.comments}</td>

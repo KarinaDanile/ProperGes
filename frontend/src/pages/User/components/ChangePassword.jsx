@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import api from '../../../utils/api';
 import Spinner from '../../../components/Spinner';
+import { useToast } from 'rc-toastr';
 
 export default function ChangePassword() {
+    const { toast } = useToast();
     const [formData, setFormData] = useState({
         old_password: "",
         new_password: "",
     });
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState(false);
+
 
     const handleChange = (e) => {
         setFormData({
@@ -20,18 +22,23 @@ export default function ChangePassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        console.log('Changing password:', formData);
+
         try {
             const res = await api.patch('/change-password/', formData);
-            console.log(res);
-            setMessage(res.data.detail || "Contraseña cambiada con éxito")
+            if (res.status === 200) {
+                toast.success("Contraseña cambiada con éxito")
+            } 
+            setFormData({
+                old_password: "",
+                new_password: "",
+            });
             setLoading(false);
         }
         catch (error) {
-            if(error.response){
-                setMessage(error.response.data.detail || "Error al modificar la contraseña")
+            if(error.response.data.old_password){
+                toast.error("La contraseña actual no es correcta")
             } else {
-                setMessage("Error al cambiar la contraseña")
+                toast.error("Error al cambiar la contraseña")
             }
             setLoading(false);
         }
@@ -43,7 +50,7 @@ export default function ChangePassword() {
     return (
         <>
             <form 
-                className="flex flex-col  w-96 mx-auto  mt-20 p-12 gap-3 bg-white rounded-lg shadow-lg"
+                className="flex flex-col mb-10 w-96 mx-auto  mt-20 p-12 gap-3 bg-white rounded-lg shadow-lg"
               
                 onSubmit={handleSubmit}>
                 
@@ -66,8 +73,7 @@ export default function ChangePassword() {
                 />
                 <button className='btn-save w-fit self-center' type="submit">Guardar</button>
 
-                {message && <div className='text-center font-light'>{message}</div>}
-
+                
             </form>
             {loading && <Spinner />}
         </>

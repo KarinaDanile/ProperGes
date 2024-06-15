@@ -180,31 +180,55 @@ class AgentUpdateView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     
     def partial_update(self, request, *args, **kwargs):
-        agent = Agent.objects.get(username=request.user)
-        serializer = AgentSerializer(agent, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
+        agentMakingChanges = Agent.objects.get(username=request.user)
+        
+        if not (agentMakingChanges.is_admin or agentMakingChanges.is_superuser):
+            return Response(data={"error":"You do not have permission to make changes to this account"}, status=status.HTTP_403_FORBIDDEN)
+        
+        agent = self.get_object()
+        
+        if agentMakingChanges == agent:
+            return Response(data={"error":"You cannot modify your own account"}, status=status.HTTP_403_FORBIDDEN)
         
         restricted_fields = ['is_staff', 'is_superuser']
         
         for field in request.data.keys():
             if field in restricted_fields:
                 return Response(data={"error":f"You cannot change this {field}"}, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        serializer = AgentSerializer(agent, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        
         
         if 'is_admin' in request.data.keys():
             is_admin = serializer.validated_data['is_admin']
             
             group = Group.objects.get(name='adminGroup')
-            if is_admin:
-                agent.user.groups.add(group)
-            else:
-                agent.user.groups.remove(group)
-        
+            try:
+                if is_admin:
+                    agent.groups.add(group)
+                    
+                else:
+                    agent.groups.remove(group)
+                    
+            except Group.DoesNotExist:
+                return Response(data={"error":"Group does not exist"}, status=status.HTTP_404_NOT_FOUND)
         
         self.perform_update(serializer)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-    
 
+    
+class AgentDeleteView(generics.DestroyAPIView):
+    queryset = Agent.objects.all()
+    serializer_class = AgentSerializer
+    permission_classes = [IsAuthenticated]
+        
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance == request.user:
+            return Response(data={"error": "You cannot delete your own account"}, status=status.HTTP_403_FORBIDDEN)
+        instance.delete()
+        return Response(data={"message": "User deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 ###########################################################
 
@@ -270,7 +294,30 @@ class PlaceListView(APIView):
         places = Property.objects.values_list('place', flat=True).distinct()
         return Response(data=places, status=status.HTTP_200_OK)
     
+class PropertyCount(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        property_count = Property.objects.count()
+        return Response(data={"property_count":property_count}, status=status.HTTP_200_OK)
 
+    def get(self, request, *args, **kwargs):
+        total_properties = Property.objects.count()
+        available_properties = Property.objects.filter(availability='disponible').count()
+        reserved_properties = Property.objects.filter(availability='reservada').count()
+        sold_properties = Property.objects.filter(availability='vendida').count()
+
+        return Response(
+            data={
+                "property_count": {
+                    "total": total_properties,
+                    "available": available_properties,
+                    "reserved": reserved_properties,
+                    "sold": sold_properties
+                }
+            },
+            status=status.HTTP_200_OK
+        )
 
 ###########################################################
 
@@ -349,6 +396,14 @@ class ClientVisitsView(APIView):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
+class ActiveClientCount(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        active_clients_count = Client.objects.filter(is_active=True).count()
+        return Response(data={"active_clients":active_clients_count}, status=status.HTTP_200_OK)
+
+
 ###########################################################
 
 ####################### VISITS ###########################
@@ -365,6 +420,19 @@ class VisitListCreate(generics.ListCreateAPIView):
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class UserVisitsList(generics.ListAPIView):
+    serializer_class = VisitSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        username = self.request.user
+        try:
+            agent = Agent.objects.get(username=username)
+        except Agent.DoesNotExist:
+            return Response(data={"error":"Este agente no existe"}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Visit.objects.filter(agent_id=agent.id, visit_state="pendiente").order_by('start')
+
 class VisitDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Visit.objects.all()
     serializer_class = VisitSerializer
@@ -379,7 +447,12 @@ class VisitDetailView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()
 
-
+class VisitsPendingCount(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        pending_visits_count = Visit.objects.filter(visit_state='pendiente').count()
+        return Response(data={"pending_visits":pending_visits_count}, status=status.HTTP_200_OK)
 
 ###########################################################
 
@@ -410,6 +483,13 @@ class OfferDetailView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()
     
+class PendingOffersCount(APIView):
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        pending_offers_count = Offer.objects.filter(offer_state='pendiente').count()
+        return Response(data={"pending_offers":pending_offers_count}, status=status.HTTP_200_OK)
 
 
 

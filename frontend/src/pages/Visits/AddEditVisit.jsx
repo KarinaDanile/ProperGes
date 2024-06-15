@@ -7,9 +7,10 @@ import Select from "react-select";
 import { formatToCurrency, capitalize } from "../../utils/property_utils";
 import { getClients, getUsers } from "../../utils/api";
 import Spinner from "../../components/Spinner";
+import { useToast } from "rc-toastr";
 
 export default function AddEditVisit({client, onClose, onVisitCreated, visitToEdit }){
-
+    const { toast } = useToast();
     const [propiedades, setPropiedades] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [clients, setClients] = useState([]);
@@ -24,8 +25,6 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
         comments: visitToEdit ? visitToEdit.comments : "",
     });
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
 
     const propertyOptions = propiedades.map((propiedad) => ({
         value: propiedad.property_id,
@@ -80,29 +79,19 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                 client_id: updatedClientId, 
                 agent_id: updatedAgentId
             };
-            console.log(updatedFormData);
             
             // send to API
             try {
                 const response = await api.post('/visits/', updatedFormData);
-                console.log(response);
+
                 if (response.status === 201) {
                     onVisitCreated();
                     onClose();
-                } else {
-                    setError('Ha ocurrido un error en el post');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                }
+                } 
             } catch (error) {
-                setError('Ha ocurrido un error al añadir la visita');
-                setTimeout(() => {
-                    setError(null);
-                }, 2000);
+                toast.error('Ha ocurrido un error al añadir la visita');
             }
         } else {
-            console.log(formData)
             // update dateTime format for DB
             const formattedDate = formatDateTimeForDB(formData.start);
             const updatedPropertyId = selectedProperty ? selectedProperty.value : null;
@@ -116,26 +105,18 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                 client_id: updatedClientId, 
                 agent_id: updatedAgentId
             };
-            console.log(updatedFormData);
+
             
             // send edited visit to API
             try {
                 const response = await api.patch(`/visits/${visitToEdit.visit_id}/`, updatedFormData);
-                console.log(response);
+
                 if (response.status === 200) {
                     onVisitCreated();
                     onClose();
-                } else {
-                    setError('Ha ocurrido un error en el patch');
-                    setTimeout(() => {
-                        setError(null);
-                    }, 2000);
-                }
+                } 
             } catch (error) {
-                setError('Ha ocurrido un error al editar la visita');
-                setTimeout(() => {
-                    setError(null);
-                }, 2000);
+                toast.error('Ha ocurrido un error al editar la visita');
             }
         }
 
@@ -156,7 +137,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                     }
                     setPropiedades(response.data);
                 }).catch((error) => {
-                    console.error(error);
+                    toast.error("Error al cargar las propiedades");
                 });
         }
         getProperties();
@@ -173,7 +154,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                 }
             }
         }).catch((error) => {
-            console.error(error);
+            toast.error("Error al cargar los clientes");
         });
             
         
@@ -189,7 +170,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                 }
             }
         }).catch((error) => {
-            console.error(error);
+            toast.error("Error al cargar los usuarios");
         });
         setTimeout(() => {
             setLoading(false);
@@ -304,9 +285,6 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                             </button>
                         </div>
                         
-
-                        {error && <><br /> <div className="text-red-600 border border-red-600 border-dashed p-2">{error}</div></>}
-
                     </form>
                 </div>
                 

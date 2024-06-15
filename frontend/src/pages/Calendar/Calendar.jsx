@@ -8,6 +8,7 @@ import api from "../../utils/api";
 import { Tooltip } from 'react-tooltip';
 import { capitalize } from "../../utils/property_utils";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "rc-toastr";
 
 const Calendar = () => {
 
@@ -15,14 +16,14 @@ const Calendar = () => {
     const [loading, setLoading] = useState(true);
     const [agentsColors, setAgentsColors] = useState({})
     const [agentNames, setAgentNames] = useState({})
-
+    const {toast} = useToast();
     const navigate = useNavigate();
 
     useEffect(() => {
         const getVisits = async () => {
             try {
                 const res = await api.get('/visits/');
-                console.log(res.data)
+                
                 const agents = res.data.map(visit => ({id: visit.agent_id, name: visit.agent_name}));
                 const uniqueAgents = Array.from(new Set(agents.map(agent => agent.id))).map(id => agents.find(agent => agent.id === id));
                 const agentIds = uniqueAgents.map(agent => agent.id);
@@ -43,13 +44,13 @@ const Calendar = () => {
                         client_id: visit.client_id
                     }
                 }));
-                console.log(events)
+                
                 setAgentsColors(colors);
                 setAgentNames(agentNamesMap);
                 setEvents(events);
                 setLoading(false);
             } catch (error) {
-                console.error(error);
+                toast.error("Ha ocurrido un error al cargar las visitas");
             }
         }
         getVisits();

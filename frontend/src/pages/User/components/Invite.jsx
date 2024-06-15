@@ -1,10 +1,12 @@
 import { useState } from "react";
 import api from "../../../utils/api";
+import { useToast } from "rc-toastr";
 
 export default function Invite() {
 
     const [formData, setFormData] = useState({email: ""});
     const [ message, setMessage ] = useState('');
+    const {toast} = useToast();
 
     const handleChange = (e) => {
         setFormData({
@@ -15,16 +17,16 @@ export default function Invite() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Inviting:', formData);
+
         try {
             const { data } = await api.post('/invite/', formData);
 
             // Notificar exito notificacion al usuario
-            console.log(data);
-            setMessage('Invitación enviada con éxito')
+
+            toast.success('Invitación enviada con éxito')
         }
         catch (error) {
-            console.error(error.response.data.error);
+            toast.error('Ha ocurrido un error al enviar la invitación');
         }
     }
 
