@@ -1,27 +1,24 @@
-
 import { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { getClients } from "../../utils/api";
+import Spinner from "../../components/Spinner";
 import api from "../../utils/api";
 import Select from "react-select";
-import { formatToCurrency, capitalize } from "../../utils/property_utils";
-import { getClients, getUsers } from "../../utils/api";
-import Spinner from "../../components/Spinner";
+import { formatToCurrency } from "../../utils/property_utils";
+import { NumericFormat } from 'react-number-format';
 
-export default function AddEditVisit({client, onClose, onVisitCreated, visitToEdit }){
-
+const AddOffer = ({ client, onClose, onOfferCreated, offerToEdit }) => {
+    console.log(offerToEdit)
     const [propiedades, setPropiedades] = useState([]);
     const [selectedProperty, setSelectedProperty] = useState(null);
     const [clients, setClients] = useState([]);
     const [selectedClient, setSelectedClient] = useState(null);
-    const [agents, setAgents] = useState([]);
-    const [selectedAgent, setSelectedAgent] = useState(null);
+    
     const [formData, setFormData] = useState({
-        property_id:  visitToEdit ? visitToEdit.property_id :"",
-        client_id: visitToEdit ? visitToEdit.client_id :"",
-        agent_id: visitToEdit ? visitToEdit.agent_id :"",
-        start: visitToEdit ? visitToEdit.start : new Date(),
-        comments: visitToEdit ? visitToEdit.comments : "",
+        offer_id:  offerToEdit ? offerToEdit.offer_id :"",
+        property: offerToEdit ? offerToEdit.property :"",
+        client: offerToEdit ? offerToEdit.client :"",
+        offered_price: offerToEdit ? offerToEdit.offered_price : "",
+        comments: offerToEdit ? offerToEdit.comments : "",
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,107 +29,68 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
         label: `${propiedad.reference} - ${propiedad.place_name} - ${formatToCurrency(propiedad.price)}`
     }));
 
-    const formatDateTimeForDB = (date) => {
-        if (!date) return '';
-
-        if(typeof date === 'string' && isValidISODate(date)){
-            return date;
-        }
-
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        return `${year}-${month < 10 ? "0" + month : month}-${day < 10 ? "0" + day : day} ${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}:00`;
-    }
-
-    const isValidISODate = (dateString) => {
-        const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
-        return regex.test(dateString);
-    };
-
-    /*
-        <input
-            name="start"
-            type="datetime-local"
-            value={formData.start}
-            onChange={handleChange}
-            required
-        />
-    */
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        if(!visitToEdit){
-            // update dateTime format for DB
-            const formattedDate = formatDateTimeForDB(formData.start);
+        if(!offerToEdit){
             const updatedPropertyId = selectedProperty ? selectedProperty.value : null;
             const updatedClientId = selectedClient ? selectedClient.value : null;
-            const updatedAgentId = selectedAgent ? selectedAgent.value : null;
 
             const updatedFormData = { 
                 ...formData, 
-                start: formattedDate, 
-                property_id: updatedPropertyId, 
-                client_id: updatedClientId, 
-                agent_id: updatedAgentId
+                property: updatedPropertyId, 
+                client: updatedClientId, 
             };
             console.log(updatedFormData);
             
             // send to API
             try {
-                const response = await api.post('/visits/', updatedFormData);
+                const response = await api.post('/offers/', updatedFormData);
                 console.log(response);
                 if (response.status === 201) {
-                    onVisitCreated();
+                    onOfferCreated();
                     onClose();
                 } else {
-                    setError('Ha ocurrido un error en el post');
+                    setError('Ha ocurrido un error en al crear la oferta');
                     setTimeout(() => {
                         setError(null);
                     }, 2000);
                 }
             } catch (error) {
-                setError('Ha ocurrido un error al añadir la visita');
+                setError('Ha ocurrido un error al añadir la oferta');
                 setTimeout(() => {
                     setError(null);
                 }, 2000);
             }
         } else {
             console.log(formData)
-            // update dateTime format for DB
-            const formattedDate = formatDateTimeForDB(formData.start);
             const updatedPropertyId = selectedProperty ? selectedProperty.value : null;
             const updatedClientId = selectedClient ? selectedClient.value : null;
-            const updatedAgentId = selectedAgent ? selectedAgent.value : null;
 
             const updatedFormData = { 
                 ...formData, 
-                start: formattedDate, 
-                property_id: updatedPropertyId, 
-                client_id: updatedClientId, 
-                agent_id: updatedAgentId
+                property: updatedPropertyId, 
+                client: updatedClientId, 
             };
             console.log(updatedFormData);
             
-            // send edited visit to API
+            // send edited offer to API
             try {
-                const response = await api.patch(`/visits/${visitToEdit.visit_id}/`, updatedFormData);
+                const response = await api.patch(`/offers/${offerToEdit.offer_id}/`, updatedFormData);
                 console.log(response);
                 if (response.status === 200) {
-                    onVisitCreated();
+                    onOfferCreated();
                     onClose();
                 } else {
-                    setError('Ha ocurrido un error en el patch');
+                    setError('Ha ocurrido un error al guardar los cambios');
                     setTimeout(() => {
                         setError(null);
                     }, 2000);
                 }
             } catch (error) {
-                setError('Ha ocurrido un error al editar la visita');
+                setError('Ha ocurrido un error al editar la oferta');
                 setTimeout(() => {
                     setError(null);
                 }, 2000);
@@ -146,8 +104,8 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
         const getProperties = () => {
             api.get(`/properties/`)
                 .then((response) => {
-                    if ( visitToEdit ) {
-                        const initialProperty = (response.data).find(prop => prop.property_id === visitToEdit.property_id);
+                    if ( offerToEdit ) {
+                        const initialProperty = (response.data).find(prop => prop.property_id === offerToEdit.property);
                         if (initialProperty){
                             setSelectedProperty({ value: initialProperty.property_id, label: `${initialProperty.reference} - ${initialProperty.place_name} - ${formatToCurrency(initialProperty.price)}` });
                         } else{
@@ -164,8 +122,8 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
         // get clients
         getClients().then((data) => {
             setClients(data);
-            if(visitToEdit){
-                const initialClient = data.find(client => client.client_id === visitToEdit.client_id);
+            if(offerToEdit){
+                const initialClient = data.find(client => client.client_id === offerToEdit.client);
                 if (initialClient){
                     setSelectedClient({ value: initialClient.client_id, label: initialClient.iden_client });
                 } else {
@@ -175,25 +133,9 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
         }).catch((error) => {
             console.error(error);
         });
-            
-        
-        // get agents
-        getUsers().then((data) => {
-            setAgents(data);
-            if(visitToEdit){
-                const initialAgent = data.find(agent => agent.id === visitToEdit.agent_id);
-                if (initialAgent){
-                    setSelectedAgent({ value: initialAgent.id, label: capitalize(initialAgent.username) });
-                } else {
-                    setSelectedAgent(null);
-                }
-            }
-        }).catch((error) => {
-            console.error(error);
-        });
-        setTimeout(() => {
+       setTimeout(() => {
             setLoading(false);
-        },1500);
+        }, 1500);
        
     }, [])
 
@@ -213,6 +155,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                             <label>
                                 Propiedad: {" "}
                                 <Select 
+                                    className="max-w-xs md:max-w-full"
                                     placeholder="Selecciona una propiedad"
                                     required
                                     value={selectedProperty}
@@ -229,6 +172,7 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                             <label>
                                 Cliente: {" "}
                                 <Select
+                                    className="max-w-xs md:max-w-full"
                                     placeholder="Selecciona un cliente"
                                     required
                                     value={selectedClient}
@@ -243,49 +187,37 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
                                 />
                             </label>
                         </div>
-                        <div className="form-group">
-                            <label>
-                                Agente: {" "}
-                                <Select
-                                    placeholder="Selecciona un agente"
-                                    required
-                                    value={selectedAgent}
-                                    onChange={(selectedOption) => {
-                                        setSelectedAgent(selectedOption);
+                        <div className="form-group mt-1">
+                            <label> Precio ofertado: {" "}
+                                
+                                <NumericFormat
+                                    className="w-fit focus:border-blue-500 focus:border-2"
+                                    thousandSeparator={true}
+                                    suffix={'€'}
+                                    allowNegative={false}
+                                    placeholder="Indica el precio"
+                                    value={formData.offered_price}
+                                    onValueChange={(values) => {
+                                        const {formattedValue, value} = values;
+                                        setFormData({
+                                            ...formData,
+                                            offered_price: value
+                                        });
                                     }}
-                                    options={agents.map((agent) => ({
-                                        value: agent.id,
-                                        label: capitalize(agent.username)
-                                    }))}
-                                    isClearable
+                                    required
                                 />
                             </label>
                         </div>
                         
                         <div className="form-group">
                             <label>
-                                Fecha y hora: {" "}
-                                
-
-                                <DatePicker
-                                    selected={formData.start}
-                                    onChange={(date) => {setFormData({...formData, start: date})}}
-                                    timeInputLabel="Hora:"
-                                    dateFormat="dd/MM/yyyy h:mm aa"
-                                    showTimeInput
-                                    required
-                                />
-                            </label>
-                        </div>
-                        <div className="form-group">
-                            <label>
                                 Comentarios: {" "}
                                 <textarea
-                                    className="border w-full border-gray-300 rounded-md p-2"
+                                    className="border min-h-20 w-full border-gray-300 rounded-md p-2 focus:border-blue-500 focus:border-2"
                                     value={formData.comments}
                                     onChange={(e) => setFormData({...formData, comments: e.target.value})}
                                     name="comments"
-                                    placeholder="Comentarios sobre la visita..."
+                                    placeholder="Comentarios sobre la oferta..."
                                 />
                             </label>
                         </div>
@@ -315,3 +247,5 @@ export default function AddEditVisit({client, onClose, onVisitCreated, visitToEd
         </>
     )
 }
+
+export default AddOffer;

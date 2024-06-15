@@ -17,6 +17,7 @@ import PropertyDetails from './pages/Properties/PropertyDetails';
 import Calendar from './pages/Calendar/Calendar';
 import Visits from './pages/Visits/Visits';
 import ClientDetails from './pages/Clients/ClientDetails';
+import Offers from './pages/Offers/Offers';
 
 const App = () => {
 
@@ -88,6 +89,13 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <Visits />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path='/offers/'
+                    element={
+                      <ProtectedRoute>
+                        <Offers />
                       </ProtectedRoute>
                     } 
                   />

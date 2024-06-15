@@ -6,7 +6,16 @@ import { useState, useEffect, useRef } from "react";
 export function Navigation() {
   const {user} = useContext(AuthContext);
   const [sidebarOpen, setsidebarOpen] = useState(false);
+  const [hovered, SetHovered] = useState(false);
   const sidebarRef = useRef();
+
+  const handleMouseEnter = () => {
+    SetHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    SetHovered(false);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -42,9 +51,20 @@ export function Navigation() {
               <NavLink 
                 className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
                 to="/">Inicio</NavLink>
-              <NavLink 
-                className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
-                to="/properties">Propiedades</NavLink>
+              <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                <NavLink 
+                  className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
+                  to="/properties">Propiedades</NavLink>
+
+                  {hovered && (
+                    <div className="absolute  py-2 bg-white  rounded w-36">
+                        <NavLink to="/offers" className="block px-4 py-2 text-gray-700 relative after:block after:content-[''] after:relative after:h-[1px] after:bg-black after:scale-x-0 after:hover:scale-x-100 after:transition after:duration-300 after:origin-center">
+                            Ofertas
+                        </NavLink>
+                        
+                    </div>
+                  )}
+              </div>
               <NavLink 
                 className={( {isActive }) => isActive ? 'text-blue-800 link' : 'link'}
                 to="/clients">Clientes</NavLink>

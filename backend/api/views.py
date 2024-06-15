@@ -386,7 +386,7 @@ class VisitDetailView(generics.RetrieveUpdateDestroyAPIView):
 ####################### OFFERS ############################
 
 class OfferListCreate(generics.ListCreateAPIView):
-    queryset = Offer.objects.all()
+    queryset = Offer.objects.all().order_by('-created')
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
     
