@@ -28,16 +28,16 @@ export default function ListUsers() {
         
     }, []);
 
-    const handleDeactivateAccount = async (userId) => {
+    const handleDeactivateAccount = async (userId, isActive) => {
         try {
             setLoading(true);
-            const updatedUser = await updateUser(userId, { is_active: false });
+            const updatedUser = await updateUser(userId, { is_active: !isActive });
             setUsers((prevUsers) =>
                 prevUsers.map((user) => (user.id === userId ? updatedUser : user))
             );
-            toast.success("Cuenta desactivada con éxito")
+            toast.success("Cuenta modificada con éxito")
         } catch (error) {
-            toast.error("Error al desactivar la cuenta");
+            toast.error("Error al cambiar el estado de la cuenta");
         } finally {
             setLoading(false);
         }
@@ -114,8 +114,8 @@ export default function ListUsers() {
                                 <td> <b>{user.username}</b> </td>
                                 <td> {user.email} </td>
                                 <td> {user.phone} </td>
-                                <td> {user.is_active ? 'Yes' : 'No'} </td>
-                                <td> {user.is_admin ? 'Yes' : 'No'} </td>
+                                <td> {user.is_active ? 'Si' : 'No'} </td>
+                                <td> {user.is_admin ? 'Si' : 'No'} </td>
                                 {is_admin &&
                                 <>
                                     { username !== user.username & 'admin' !== user.username ?
@@ -123,9 +123,9 @@ export default function ListUsers() {
                                             <button 
                                                 className="py-1 text-sm border p-2 border-gray-300 rounded-md bg-gray-50 hover:shadow"  
                                                 style={{maxWidth:"118px"}}
-                                                onClick={() => handleDeactivateAccount(user.id)}
+                                                onClick={() => handleDeactivateAccount(user.id, user.is_active)}
                                             >
-                                                Desactivar cuenta
+                                                { user.is_active ? "Desactivar cuenta" : "Activar cuenta" }
                                             </button>
                                             
                                             <button 

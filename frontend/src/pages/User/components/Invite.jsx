@@ -1,11 +1,12 @@
 import { useState } from "react";
 import api from "../../../utils/api";
 import { useToast } from "rc-toastr";
+import Spinner from "../../../components/Spinner";
 
 export default function Invite() {
 
     const [formData, setFormData] = useState({email: ""});
-    const [ message, setMessage ] = useState('');
+    const [loading, setLoading] = useState(false);
     const {toast} = useToast();
 
     const handleChange = (e) => {
@@ -17,17 +18,19 @@ export default function Invite() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setLoading(true);
         try {
             const { data } = await api.post('/invite/', formData);
 
             // Notificar exito notificacion al usuario
-
             toast.success('Invitación enviada con éxito')
         }
         catch (error) {
             toast.error('Ha ocurrido un error al enviar la invitación');
         }
+        
+        setLoading(false);
+    
     }
 
 
@@ -50,7 +53,8 @@ export default function Invite() {
                 />
                 <button className="btn-save w-fit self-center" type="submit">Invite</button>
 
-                {message && <p>{message}</p>}
+                {loading && <Spinner />}
+             
             </form>
         </>
     )

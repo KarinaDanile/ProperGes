@@ -75,7 +75,7 @@ const Home = () => {
                         </div>
                     </div>
                     <div className=" w-fit">
-                        <div className="bg-white text-gray-700 w-40 p-7 rounded-lg shadow-lg">
+                        <div className="bg-white min-h-32 text-gray-700 w-40 p-7 rounded-lg shadow-lg">
                             <h1>{activeClients} </h1>
                             Clientes activos
                         </div>
