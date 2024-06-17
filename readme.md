@@ -13,5 +13,5 @@
 Habrá un usuario creado, "admin" con contraseña "admin".
 Para local se usa sqlite3 y en despliegue, postgreSQL.
 
-Las imágenes en local se guardan a nivel de proyecto en media,
-y en despliegue se usa Cloudinary.
+Las imágenes por defecto se guardan en Cloudinary, por lo que para 
+probar haría falta una key o cambiar en settings.py las líneas comentadas.

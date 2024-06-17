@@ -38,6 +38,7 @@ export default function PropertyDetails() {
     const handleDeteleProperty = () => {
         deleteProperty(id)
         .then(() => {
+            toast.success("Propiedad eliminada correctamente");
             navigate('/properties/');
         })
         .catch((error) => {

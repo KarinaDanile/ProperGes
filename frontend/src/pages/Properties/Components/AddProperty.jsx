@@ -134,6 +134,7 @@ export default function AddProperty({setShowModal, updateProperties}) {
 
             if (response.status === 201) {
                 setShowModal(false);
+                toast.success('Propiedad añadida correctamente');
                 updateProperties({});
             } 
         } catch (error) {
