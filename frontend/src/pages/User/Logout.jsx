@@ -29,8 +29,8 @@ const Logout = () => {
                 return;
             }
             localStorage.clear();
-            Cookies.remove('access_token',  { sameSite: 'none' });
-            Cookies.remove('refresh_token', { sameSite: 'none' });
+            Cookies.remove('access_token',  { sameSite: 'none', secure: true});
+            Cookies.remove('refresh_token', { sameSite: 'none', secure: true});
             setUser(null);
             navigate('/login/');
         }
